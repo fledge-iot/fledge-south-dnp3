@@ -31,7 +31,11 @@ outstations
     {"outstations":["IP_1:PORT_1:ID_1", "IP_2:PORT_2:ID_2"]}
 
 In the above examples
-    AAAAA
+    IP_X and PORT_X are related to outstation X IP and PORT
+    ID_X is the DNP3 protocol LinkId of outstation X
+
+Whithin this basic configurations all object types in outstation X are fetched.
+The DNP3 plugin also handles unsolicited messages trasmitted by the outstation.
 
 Building opendnp3
 ------------------
