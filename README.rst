@@ -41,15 +41,16 @@ Building opendnp3
 ------------------
 
 To build opendnp3 you must clone the opendnp3 repository to a directory of your choice.
+The branch name is release-2.x
 
 .. code-block:: console
 
-  $ git clone https://github.com/dnp3/opendnp3.git
+  $ git clone --recursive -b release-2.x https://github.com/dnp3/opendnp3.git
   $ cd opendnp3
-  $ export OPENDNP3_LIB=`pwd`
+  $ export OPENDNP3_LIB_DIR=`pwd`
   $ mkdir build
   $ cd build
-  $ cmake -DDNP3_STATIC_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_EXAMPLES=ON -DDNP3_TLS=OFF ..
+  $ cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON ..
   $ make
 
 The opendnp3 library requires boost libraries that are not available in packaged form for the
