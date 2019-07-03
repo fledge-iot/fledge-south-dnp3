@@ -87,7 +87,7 @@ bool DNP3::start()
 	// This object contains static configuration for the master, and transport/link layers
 	MasterStackConfig stackConfig;
 
-	// you can optionally override these defaults likei:
+	// you can optionally override these defaults like:
 	// setting the application layer response timeout
 	// or change behaviors on the master
 	stackConfig.master.responseTimeout = TimeDuration::Seconds(5);

@@ -12,8 +12,7 @@ project(dnp3)
 # If no -D options are given and FOGLAMP_ROOT environment variable is set
 # then FogLAMP libraries and header files are pulled from FOGLAMP_ROOT path.
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -O3 -g")
-set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_CXX_FLAGS "-std=c++11 -O3")
 
 # Generation version header file
 set_source_files_properties(version.h PROPERTIES GENERATED TRUE)
