@@ -40,46 +40,46 @@ typedef void (*INGEST_CB)(void *, Reading);
  */
 const char *default_config = QUOTE({
 	"plugin" : {
-       		"description" : "Simple DNP3 data change plugin",
+		"description" : "Simple DNP3 data change plugin",
 		"type" : "string",
-	       	"default" : "dnp3",
+		"default" : "dnp3",
 		"readonly" : "true"
 		},
 	"asset" : {
-       		"description" : "Asset name prefix",
+		"description" : "Asset name prefix for ingested readings data",
 		"type" : "string",
-	       	"default" : DEFAULT_ASSETNAME_PREFIX,
+		"default" : DEFAULT_ASSETNAME_PREFIX,
 		"displayName" : "Asset Name prefix",
-	       	"order" : "1"
-	       	},
+		"order" : "1"
+		},
 	"master_id" : {
-       		"description" : "Master Link Id",
+		"description" : "Master Link Id",
 		"type" : "integer",
-	       	"default" : DEFAULT_MASTER_LINK_ID,
+		"default" : DEFAULT_MASTER_LINK_ID,
 		"displayName" : "Master link Id",
-	       	"order" : "2"
-	       	},
+		"order" : "2"
+		},
 	"outstation_tcp_address" : {
 		"description" : "Outstation TCP/IP address",
 		"type" : "string",
-	       	"default" : DEFAULT_TCP_ADDR,
+		"default" : DEFAULT_TCP_ADDR,
 		"displayName" : "Outstation address",
-	       	"order" : "3"
-       		},
+		"order" : "3"
+		},
 	"outstation_tcp_port" : {
 		"description" : "Outstation TCP/IP port",
 		"type" : "integer",
-	       	"default" : DEFAULT_TCP_PORT,
+		"default" : DEFAULT_TCP_PORT,
 		"displayName" : "Outstation port",
-	       	"order" : "4"
-       		},
+		"order" : "4"
+		},
 	"outstation_id" : {
 		"description" : "Outstation Link Id",
 		"type" : "integer",
-	       	"default" : DEFAULT_OUTSTATION_ID,
+		"default" : DEFAULT_OUTSTATION_ID,
 		"displayName" : "Outstation link Id",
-	       	"order" : "5"
-       		},
+		"order" : "5"
+		},
 	"outstation_poll_enable" : {
 		"description" : "Enable outstation data poll",
 		"type" : "boolean",
@@ -168,7 +168,9 @@ void plugin_start(PLUGIN_HANDLE *handle)
 /**
  * Register ingest callback
  */
-void plugin_register_ingest(PLUGIN_HANDLE *handle, INGEST_CB cb, void *data)
+void plugin_register_ingest(PLUGIN_HANDLE handle,
+			    INGEST_CB cb,
+			    void *data)
 {
 	Logger::getLogger()->debug("DNP3 south plugin 'plugin_register_ingest' called");
 
@@ -184,7 +186,7 @@ void plugin_register_ingest(PLUGIN_HANDLE *handle, INGEST_CB cb, void *data)
 /**
  * Poll for a plugin reading
  */
-Reading plugin_poll(PLUGIN_HANDLE *handle)
+Reading plugin_poll(PLUGIN_HANDLE handle)
 {
 	throw runtime_error("DNP3 is an async plugin, poll should not be called");
 }
@@ -195,7 +197,7 @@ Reading plugin_poll(PLUGIN_HANDLE *handle)
  */
 void plugin_reconfigure(PLUGIN_HANDLE *handle, string& newConfig)
 {
-	DNP3* dnp3 = (DNP3 *)handle;
+	DNP3* dnp3 = (DNP3 *)*handle;
 	ConfigCategory	config("new", newConfig);
 
 	Logger::getLogger()->debug("DNP3 south 'plugin_reconfigure' called");
@@ -214,7 +216,7 @@ void plugin_reconfigure(PLUGIN_HANDLE *handle, string& newConfig)
 /**
  * Shutdown the DNP3 plugin
  */
-void plugin_shutdown(PLUGIN_HANDLE *handle)
+void plugin_shutdown(PLUGIN_HANDLE handle)
 {
 	DNP3* dnp3 = (DNP3 *)handle;
 	Logger::getLogger()->debug("DNP3 south plugin 'plugin_shutdown' called");
