@@ -1,0 +1,232 @@
+#ifndef _DNP3_H
+#define _DNP3_H
+/*
+ * FogLAMP DNP3 class
+ *
+ * Copyright (c) 2019 Dianomic Systems
+ *
+ * Released under the Apache 2.0 Licence
+ *
+ * Author: Massimiliano Pinto
+ */
+#include <string>
+#include <reading.h>
+#include <logger.h>
+#include <mutex>
+#include <vector>
+
+#include <asiodnp3/ConsoleLogger.h>
+#include <asiodnp3/DNP3Manager.h>
+#include <asiodnp3/PrintingChannelListener.h>
+#include <asiodnp3/DefaultMasterApplication.h>
+#include <asiodnp3/PrintingSOEHandler.h>
+#include <opendnp3/LogLevels.h>
+#include <opendnp3/outstation/IUpdateHandler.h>
+#include <opendnp3/outstation/SimpleCommandHandler.h>
+#include <opendnp3/master/ISOEHandler.h>
+
+#define DEFAULT_MASTER_LINK_ID 			"1"
+#define DEFAULT_TCP_ADDR      			"127.0.0.1"
+#define DEFAULT_TCP_PORT      			"20000"   
+#define DEFAULT_OUTSTATION_ID			"10"
+#define DEFAULT_OUTSTATION_POLL_INTERVAL	"30" // seconds
+#define DEFAULT_ASSETNAME_PREFIX		"dnp3_"
+
+// DNP3 class for DNP3 FogLAMP South plugin
+class DNP3
+{
+	public:
+		// This class describes the TCP outstation (remote endpoint)
+		class OutStationTCP
+		{
+			public:
+				OutStationTCP()
+				{
+					// Set default values
+					address = DEFAULT_TCP_ADDR;
+					port = (short unsigned int)atoi(DEFAULT_TCP_PORT);
+					linkId = (uint16_t)atoi(DEFAULT_OUTSTATION_ID);
+				};
+				std::string		address;
+				short unsigned int	port;
+				uint16_t		linkId;
+		};
+
+	public:
+		DNP3()
+		{
+			m_manager = NULL;     // configure() creates the object
+			m_enablePoll = false; // Poll outstation
+			// Default poll interval in seconds
+			m_outstationPollInterval =
+				(unsigned long)atol(DEFAULT_OUTSTATION_POLL_INTERVAL);
+		};
+		~DNP3()
+		{
+			if (m_manager)
+			{
+				delete m_manager;
+			}
+		};
+
+		// Lock configuration items
+		void	lockConfig() { m_configMutex.lock(); };
+		// Unlock configuration items
+		void	unlockConfig() { m_configMutex.unlock(); };
+
+		// Ingest function
+		void	ingest(std::string assetName,
+				std::vector<Datapoint *>  points)
+		{
+			(*m_ingest)(m_data, Reading(m_asset + assetName, points));
+		}
+		// Register ingest function
+		void	registerIngest(void *data, void (*cb)(void *, Reading))
+		{
+			m_ingest = cb;
+			m_data = data;
+		};
+		void	setAssetName(const std::string& asset)
+		{
+			m_asset = asset;
+		};
+		void	setMasterLinkId(uint16_t id)
+		{
+			m_masterId = id;
+		};
+		uint16_t
+			getMasterLinkId() { return m_masterId; };
+
+		// Add outstaion
+		void	addOutStationTCP(const OutStationTCP& outstation)
+		{
+			m_outstations.push_back(outstation);	
+		};
+
+		bool	start();
+
+		// Stop master anc close outstation connection
+		void	stop()
+		{
+			if (m_manager)
+			{
+				m_manager->Shutdown();
+				delete m_manager;
+				m_manager = NULL;
+			}
+		};
+		bool	configure(ConfigCategory* config);
+		bool	enablePoll(bool val) { m_enablePoll = val; };
+		bool	isPollEnabled() const { return m_enablePoll; };
+		unsigned long
+			getOutstationPollInterval() const
+		{
+			return m_outstationPollInterval;
+		};
+		void 	setOutstationPollInterval(unsigned long val)
+		{
+			m_outstationPollInterval = val;
+		};
+
+	private:
+		std::string		m_asset;
+		uint16_t		m_masterId;
+		asiodnp3::DNP3Manager* 	m_manager;
+		bool			m_enablePoll;
+		unsigned long		m_outstationPollInterval;
+		std::mutex		m_configMutex;;
+		void			(*m_ingest)(void *, Reading);
+		void			*m_data;
+		// vector of Outstations
+		// Note: only one is handled right now
+		std::vector<DNP3::OutStationTCP>
+					m_outstations;
+};
+
+template<class T> std::string ValueToString(const T& meas)
+{
+	return std::to_string(meas.value);
+}
+
+using namespace opendnp3;
+
+namespace asiodnp3
+{
+	// This class defines a custom SOE handler for data ingest in FogLAMP
+	class dnp3SOEHandler : public opendnp3::ISOEHandler
+	{
+		public:
+			dnp3SOEHandler(DNP3* dnp3, std::string& name)
+			{
+				m_dnp3 = dnp3;
+				m_label = name;
+			};
+
+			// Data callbacks
+			// We get data from these objects only 
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<Counter>>& values) override
+			{
+				return this->dnp3DataCallback(info,values, "Counter");
+			};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<Binary>>& values) override
+			{
+				return this->dnp3DataCallback(info,values, "Binary");
+			};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<BinaryOutputStatus>>& values) override
+			{
+				return this->dnp3DataCallback(info,values, "BinaryOutputStatus");
+			};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<Analog>>& values) override
+			{
+				return this->dnp3DataCallback(info,values, "Analog");
+			};
+
+			// We don't get data from these
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<DoubleBitBinary>>& values) override {};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<FrozenCounter>>& values) override {};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<AnalogOutputStatus>>& values) override {};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<OctetString>>& values) override {};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<TimeAndInterval>>& values) override {};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<BinaryCommandEvent>>& values) override {};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<AnalogCommandEvent>>& values) override {};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<SecurityStat>>& values) override {};
+			void Process(const HeaderInfo& info,
+				     const ICollection<DNPTime>& values) override {};
+
+		protected:
+			void Start() {};
+			void End() {};
+
+			// Callback for data receiving:
+			// solicited and unsolicited messages
+			template<class T> void
+				dnp3DataCallback(const HeaderInfo& info,
+						 const ICollection<Indexed<T>>& values,
+						 const std::string& objectType);
+
+			// Process a data element from callback
+			// and ingest data into FogLAMP
+			template<class T> void dataElement(const opendnp3::HeaderInfo& info,
+							   const T& value,
+							   uint16_t index,
+							   const std::string& objectName);
+		private:
+			// assetName prefix
+			std::string	m_label;
+			DNP3*		m_dnp3;
+	};
+
+} // end namespace asiodnp3
+#endif
