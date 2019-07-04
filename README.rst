@@ -21,20 +21,25 @@ asset
 master_id
   The master link id for DNP3 protocol
 
-outstations
-  An array of DNP3 outstations.
-  
-  Configuration examples:
+outstation_tcp_address
+  The remote end (Outstation) TCP/IP address
 
-.. code-block:: console
+outstation_tcp_port
+  The remote end (Outstation) TCP/IP port
 
-    {"outstations":["IP_1:PORT_1:ID_1", "IP_2:PORT_2:ID_2"]}
+outstation_id
+  The remote end (Outstation) link id
 
-In the above examples
-    IP_X and PORT_X are related to outstation X IP and PORT
-    ID_X is the DNP3 protocol LinkId of outstation X
+data_fetch_timeout
+  Timeout for data fetch from outstation, in seconds
 
-Whithin this basic configurations all object types in outstation X are fetched.
+outstation_poll_enable
+  Whether to poll objects and values from the outstation
+
+outstation_poll_interval
+  Outstation poll interval in seconds
+    
+Whithin this basic configurations all object types in outstation are fetched.
 The DNP3 plugin also handles unsolicited messages trasmitted by the outstation.
 
 Building opendnp3
