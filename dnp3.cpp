@@ -279,7 +279,7 @@ template<class T> void
 
 		// 0x01 means ONLINE for all Objects
 		// STATE is checked for Binary and BinaryOutputStatus objects
-		if (flag == 0x01 ||
+		if (flag == ONLINE_FLAG_ALL_OBJECTS ||
 		    (isBinary &&
 		     (flag & static_cast<uint8_t>(BinaryQuality::STATE))))
 		{

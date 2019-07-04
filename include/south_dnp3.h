@@ -33,6 +33,7 @@
 #define DEFAULT_OUTSTATION_POLL_INTERVAL	"30" // seconds
 #define DEFAULT_ASSETNAME_PREFIX		"dnp3_"
 
+#define ONLINE_FLAG_ALL_OBJECTS			0x01
 // DNP3 class for DNP3 FogLAMP South plugin
 class DNP3
 {
