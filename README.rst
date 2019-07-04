@@ -43,6 +43,36 @@ outstation_scan_interval
 Whithin this basic configurations all object types in outstation are fetched.
 The DNP3 plugin also handles unsolicited messages trasmitted by the outstation.
 
+
+DNP3 Outstation tests
+----------------------
+
+It's possible to run an outstation demo application from the opendnp3 library
+source tree:
+
+.. code-block:: console
+
+  $ host1:~/opendnp3/build$ ./outstation-demo
+
+This demo application listens on any IP address, port 20001 and has link Id set to 10.
+It also assumes master link Id is 1.
+
+Once started il logs traffic and wait for use input for sending unsolicited messages:
+
+.. code-block:: console
+
+   Enter one or more measurement changes then press <enter>
+   c = counter, b = binary, d = doublebit, a = analog, o = octet string, 'quit' = exit
+
+Another option is the usage of a DNP3 Outstation simulator, as an example:
+
+
+http://freyrscada.com/dnp3-ieee-1815-Client-Simulator.php#Download-DNP3-Development-Bundle
+
+Once the boundle has been downloaded, the **DNPOutstationSimulator.exe** under "Simulator" folder
+can be installed and run in Win32 platforms.
+
+
 Building opendnp3
 ------------------
 
