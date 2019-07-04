@@ -225,7 +225,7 @@ template<class T> void
 					 const string& objectType)
 {       
 	Logger::getLogger()->debug("Callback for outstation (%s) data: "
-				   "object type '%s', # of elements",
+				   "object type '%s', # of elements %d",
 				   m_label.c_str(),
 				   objectType.c_str(),
 				   values.Count());
