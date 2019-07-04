@@ -44,9 +44,9 @@ bool DNP3::start()
 	// Save configuration items
 	int nThreads = m_outstations.size();
 	uint16_t masterId = this->getMasterLinkId();
-	bool pollEnabled = this->isPollEnabled();
+	bool scanEnabled = this->isScanEnabled();
 	unsigned long applicationTimeout = this->getTimeout();
-	unsigned long pollInterval = this->getOutstationPollInterval();
+	unsigned long scanInterval = this->getOutstationScanInterval();
 	// We currently handle one outstation only
 	OutStationTCP outstation = m_outstations[0];
 
@@ -96,7 +96,7 @@ bool DNP3::start()
 	stackConfig.master.responseTimeout =
 		TimeDuration::Seconds(applicationTimeout);
 
-	// Don't poll outstation at startup
+	// Don't perform Integrity Poll outstation at startup
 	stackConfig.master.startupIntegrityClassMask = ClassField::None(); ;
 
 	// ... or you can override the default link layer settings
@@ -124,12 +124,12 @@ bool DNP3::start()
 		return false;
 	}
 
-	// do an integrity poll (Class 3/2/1/0) once per specified seconds
-	if (pollEnabled)
+	// Do an integrity poll (Class 3/2/1/0) once per specified seconds
+	if (scanEnabled)
 	{
-		Logger::getLogger()->info("Outstation poll is enabled");
+		Logger::getLogger()->info("Outstation scan (Integrity Poll) is enabled");
 		master->AddClassScan(ClassField::AllClasses(),
-				     TimeDuration::Seconds(pollInterval));
+				     TimeDuration::Seconds(scanInterval));
 	}
 
 	// Enable the DNP3 master and connect to outstation
@@ -178,15 +178,15 @@ bool DNP3::configure(ConfigCategory* config)
 		outstation.port = (unsigned short int)atoi(config->getValue("outstation_tcp_port").c_str());
 	}
 
-	bool enablePoll = config->itemExists("outstation_poll_enable") &&
-			 (config->getValue("outstation_poll_enable").compare("true") == 0 ||
-			  config->getValue("outstation_poll_enable").compare("True") == 0);
+	bool enableScan = config->itemExists("outstation_scan_enable") &&
+			 (config->getValue("outstation_scan_enable").compare("true") == 0 ||
+			  config->getValue("outstation_scan_enable").compare("True") == 0);
 
-	this->enablePoll(enablePoll);
+	this->enableScan(enableScan);
 
-	if (config->itemExists("outstation_poll_interval"))
+	if (config->itemExists("outstation_scan_interval"))
 	{
-		this->setOutstationPollInterval(atol(config->getValue("outstation_poll_interval").c_str()));
+		this->setOutstationScanInterval(atol(config->getValue("outstation_scan_interval").c_str()));
 	}
 
 	if (config->itemExists("data_fetch_timeout"))

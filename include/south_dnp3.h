@@ -30,7 +30,7 @@
 #define DEFAULT_TCP_ADDR      			"127.0.0.1"
 #define DEFAULT_TCP_PORT      			"20000"   
 #define DEFAULT_OUTSTATION_ID			"10"
-#define DEFAULT_OUTSTATION_POLL_INTERVAL	"30" // seconds
+#define DEFAULT_OUTSTATION_SCAN_INTERVAL	"30" // seconds
 #define DEFAULT_ASSETNAME_PREFIX		"dnp3_"
 
 #define ONLINE_FLAG_ALL_OBJECTS			0x01
@@ -58,10 +58,10 @@ class DNP3
 		DNP3(const std::string& name) : m_serviceName(name)
 		{
 			m_manager = NULL;     // configure() creates the object
-			m_enablePoll = false; // Poll outstation
-			// Default poll interval in seconds
-			m_outstationPollInterval =
-				(unsigned long)atol(DEFAULT_OUTSTATION_POLL_INTERVAL);
+			m_enableScan = false; // Scan outstation (Integrity Poll)
+			// Default scan interval in seconds
+			m_outstationScanInterval =
+				(unsigned long)atol(DEFAULT_OUTSTATION_SCAN_INTERVAL);
 			// Network timeout default
 			m_applicationTimeout = 
 				(unsigned long)DEFAULT_APPLICATION_TIMEOUT;
@@ -128,16 +128,16 @@ class DNP3
 			}
 		};
 		bool	configure(ConfigCategory* config);
-		bool	enablePoll(bool val) { m_enablePoll = val; };
-		bool	isPollEnabled() const { return m_enablePoll; };
+		bool	enableScan(bool val) { m_enableScan = val; };
+		bool	isScanEnabled() const { return m_enableScan; };
 		unsigned long
-			getOutstationPollInterval() const
+			getOutstationScanInterval() const
 		{
-			return m_outstationPollInterval;
+			return m_outstationScanInterval;
 		};
-		void 	setOutstationPollInterval(unsigned long val)
+		void 	setOutstationScanInterval(unsigned long val)
 		{
-			m_outstationPollInterval = val;
+			m_outstationScanInterval = val;
 		};
 
 	private:
@@ -145,8 +145,8 @@ class DNP3
 		std::string		m_asset;
 		uint16_t		m_masterId;
 		asiodnp3::DNP3Manager* 	m_manager;
-		bool			m_enablePoll;
-		unsigned long		m_outstationPollInterval;
+		bool			m_enableScan;
+		unsigned long		m_outstationScanInterval;
 		unsigned long		m_applicationTimeout;
 		std::mutex		m_configMutex;;
 		void			(*m_ingest)(void *, Reading);

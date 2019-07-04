@@ -80,18 +80,18 @@ const char *default_config = QUOTE({
 		"displayName" : "Outstation link Id",
 		"order" : "5"
 		},
-	"outstation_poll_enable" : {
-		"description" : "Enable outstation data poll",
+	"outstation_scan_enable" : {
+		"description" : "Enable outstation data scan (Integrity Poll for all Classes)",
 		"type" : "boolean",
 		"default" : "false",
-		"displayName" : "Poll outstation",
+		"displayName" : "Data scan",
 		"order" : "6"
 		},
-	"outstation_poll_interval" : {
-		"description" : "Outstation poll intervsal in seconds",
+	"outstation_scan_interval" : {
+		"description" : "Outstation scan interval in seconds",
 		"type" : "integer",
-		"default" : DEFAULT_OUTSTATION_POLL_INTERVAL,
-		"displayName" : "Poll interval",
+		"default" : DEFAULT_OUTSTATION_SCAN_INTERVAL,
+		"displayName" : "Scan interval",
 		"order" : "7"
 		},
 	"data_fetch_timeout" : {
