@@ -93,6 +93,13 @@ const char *default_config = QUOTE({
 		"default" : DEFAULT_OUTSTATION_POLL_INTERVAL,
 		"displayName" : "Poll interval",
 		"order" : "7"
+		},
+	"data_fetch_timeout" : {
+		"description" : "Timeout in seconds while fetching data",
+		"type" : "integer",
+		"default" : DEFAULT_APPLICATION_TIMEOUT,
+		"displayName" : "Network timeout",
+		"order" : "8"
 		}
 	});
 
@@ -128,7 +135,7 @@ PLUGIN_INFORMATION *plugin_info()
  */
 PLUGIN_HANDLE plugin_init(ConfigCategory *config)
 {
-	DNP3* dnp3 = new DNP3();
+	DNP3* dnp3 = new DNP3(config->getName());
 
 	if (!dnp3->configure(config))
 	{

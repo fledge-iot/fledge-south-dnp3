@@ -45,6 +45,7 @@ bool DNP3::start()
 	int nThreads = m_outstations.size();
 	uint16_t masterId = this->getMasterLinkId();
 	bool pollEnabled = this->isPollEnabled();
+	unsigned long applicationTimeout = this->getTimeout();
 	unsigned long pollInterval = this->getOutstationPollInterval();
 	// We currently handle one outstation only
 	OutStationTCP outstation = m_outstations[0];
@@ -58,12 +59,14 @@ bool DNP3::start()
 
 	this->unlockConfig();
 
+	string remoteLabel = "remote_" + to_string(outstation.linkId);
+
 	// Set log levels
 	const auto logLevels = levels::NOTHING | flags::WARN | flags::ERR;
 
 	// Create TCP channel for outstation
 	std::shared_ptr<IChannel> channel =
-		manager->AddTCPClient("tcpclient_1", // alias in log messages
+		manager->AddTCPClient(m_serviceName + "_" + remoteLabel, // alias in log messages
 				      logLevels, // filter what gets logged
 				      ChannelRetry::Default(), // how connections will be retried
 				      // host names or IP address of remote endpoint
@@ -90,7 +93,8 @@ bool DNP3::start()
 	// you can optionally override these defaults like:
 	// setting the application layer response timeout
 	// or change behaviors on the master
-	stackConfig.master.responseTimeout = TimeDuration::Seconds(5);
+	stackConfig.master.responseTimeout =
+		TimeDuration::Seconds(applicationTimeout);
 
 	// Don't poll outstation at startup
 	stackConfig.master.startupIntegrityClassMask = ClassField::None(); ;
@@ -99,7 +103,6 @@ bool DNP3::start()
 	stackConfig.link.LocalAddr = masterId;
 	stackConfig.link.RemoteAddr = outstation.linkId;
 
-	string remoteLabel = "remote_" + to_string(outstation.linkId);
 	// Custom SOEHandler object
 	std::shared_ptr<ISOEHandler> SOEHandle =
 		std::make_shared<dnp3SOEHandler>(this, remoteLabel);
@@ -183,7 +186,12 @@ bool DNP3::configure(ConfigCategory* config)
 
 	if (config->itemExists("outstation_poll_interval"))
 	{
-		setOutstationPollInterval(atol(config->getValue("outstation_poll_interval").c_str()));
+		this->setOutstationPollInterval(atol(config->getValue("outstation_poll_interval").c_str()));
+	}
+
+	if (config->itemExists("data_fetch_timeout"))
+	{
+		this->setTimeout(atol(config->getValue("data_fetch_timeout").c_str()));
 	}
 
 	if (config->itemExists("outstation_id"))

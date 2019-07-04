@@ -25,6 +25,7 @@
 #include <opendnp3/outstation/SimpleCommandHandler.h>
 #include <opendnp3/master/ISOEHandler.h>
 
+#define DEFAULT_APPLICATION_TIMEOUT 		"5" // seconds
 #define DEFAULT_MASTER_LINK_ID 			"1"
 #define DEFAULT_TCP_ADDR      			"127.0.0.1"
 #define DEFAULT_TCP_PORT      			"20000"   
@@ -53,13 +54,16 @@ class DNP3
 		};
 
 	public:
-		DNP3()
+		DNP3(const std::string& name) : m_serviceName(name)
 		{
 			m_manager = NULL;     // configure() creates the object
 			m_enablePoll = false; // Poll outstation
 			// Default poll interval in seconds
 			m_outstationPollInterval =
 				(unsigned long)atol(DEFAULT_OUTSTATION_POLL_INTERVAL);
+			// Network timeout default
+			m_applicationTimeout = 
+				(unsigned long)DEFAULT_APPLICATION_TIMEOUT;
 		};
 		~DNP3()
 		{
@@ -103,6 +107,13 @@ class DNP3
 			m_outstations.push_back(outstation);	
 		};
 
+		unsigned long
+			getTimeout() const { return m_applicationTimeout; };
+		void	setTimeout(unsigned long val)
+		{
+			m_applicationTimeout = val;
+		};
+
 		bool	start();
 
 		// Stop master anc close outstation connection
@@ -129,11 +140,13 @@ class DNP3
 		};
 
 	private:
+		std::string		m_serviceName;
 		std::string		m_asset;
 		uint16_t		m_masterId;
 		asiodnp3::DNP3Manager* 	m_manager;
 		bool			m_enablePoll;
 		unsigned long		m_outstationPollInterval;
+		unsigned long		m_applicationTimeout;
 		std::mutex		m_configMutex;;
 		void			(*m_ingest)(void *, Reading);
 		void			*m_data;
