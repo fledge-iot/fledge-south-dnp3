@@ -33,11 +33,12 @@ outstation_id
 data_fetch_timeout
   Timeout for data fetch from outstation, in seconds
 
-outstation_poll_enable
-  Whether to poll objects and values from the outstation
+outstation_scan_enable
+  Whether to scan all objects and values from the outstation.
+  This is the Integrity Poll for all Classes
 
-outstation_poll_interval
-  Outstation poll interval in seconds
+outstation_scan_interval
+  Outstation scan interval in seconds
     
 Whithin this basic configurations all object types in outstation are fetched.
 The DNP3 plugin also handles unsolicited messages trasmitted by the outstation.
