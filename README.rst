@@ -63,6 +63,8 @@ The opendnp3 library requires boost libraries that are not available in packaged
 Raspbery Pi. Therefore it can not be built for the Raspbery Pi without first building these boost
 libraries.
 
+Note: cmake 3.11 is required in order to build the opendnp3
+
 Alternatively run the script requirements.sh to automate this and place a copy of the opendnp3
 project in your home directory.
 
