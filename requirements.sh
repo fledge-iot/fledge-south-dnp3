@@ -64,6 +64,12 @@ if [ ! -d "${directory}/opendnp3" ]; then
 	#	> cpp/lib/include/opendnp3/app/OctetData.h.$$ && \
 	#	mv cpp/lib/include/opendnp3/app/OctetData.h cpp/lib/include/opendnp3/app/OctetData.h.orig && \
 	#	mv cpp/lib/include/opendnp3/app/OctetData.h.$$ cpp/lib/include/opendnp3/app/OctetData.h
+
+	# OpenDNP claims it needs 3.8 of cmake, but actually it doesn't
+	cmake --version | grep -s "3.5.1"
+	if [ $? -eq 0 ]; then
+		sed -i CMakeLists.txt -e 's/VERSION 3.8/VERSION 3.5/'
+	fi
 	mkdir build
 	cd build
 	echo Building opendnp3 static library ...
