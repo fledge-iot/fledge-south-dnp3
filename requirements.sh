@@ -33,9 +33,11 @@ if [[ ( $os_name == *"Red Hat"* || $os_name == *"CentOS"* ) &&  $os_version == *
 	echo Installing boost components
 	sudo yum install -y boost-filesystem
 	sudo yum install -y boost-program-options
+	sudo yum install llvm-toolset-7-clang
 	source scl_source enable devtoolset-7
 	export CC=/opt/rh/devtoolset-7/root/usr/bin/gcc
 	export CXX=/opt/rh/devtoolset-7/root/usr/bin/g++
+	source scl_source enable llvm-toolset-7
 elif apt --version 2>/dev/null; then
 	echo Installing boost components
 	sudo apt install -y libboost-filesystem-dev
@@ -66,7 +68,8 @@ if [ ! -d "${directory}/opendnp3" ]; then
 	#	mv cpp/lib/include/opendnp3/app/OctetData.h.$$ cpp/lib/include/opendnp3/app/OctetData.h
 
 	# OpenDNP claims it needs 3.8 of cmake, but actually it doesn't
-	sed -i CMakeLists.txt -e 's/VERSION 3.8/VERSION 3.5/'
+	sed -i CMakeLists.txt -e 's/VERSION 3.8/VERSION 2.8/'
+	sed -i CMakeLists.txt -e 's/opendnp3 VERSION .*/opendnp3\)/'
 	mkdir build
 	cd build
 	echo Building opendnp3 static library ...
