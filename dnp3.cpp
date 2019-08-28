@@ -48,7 +48,7 @@ bool DNP3::start()
 	unsigned long applicationTimeout = this->getTimeout();
 	unsigned long scanInterval = this->getOutstationScanInterval();
 	// We currently handle one outstation only
-	OutStationTCP outstation = m_outstations[0];
+	OutStationTCP *outstation = m_outstations[0];
 
 	// Create DNP3 manager object
 	// Set threads and console logging
@@ -59,7 +59,7 @@ bool DNP3::start()
 
 	this->unlockConfig();
 
-	string remoteLabel = "remote_" + to_string(outstation.linkId);
+	string remoteLabel = "remote_" + to_string(outstation->linkId);
 
 	// Set log levels
 	const auto logLevels = levels::NOTHING | flags::WARN | flags::ERR;
@@ -71,7 +71,7 @@ bool DNP3::start()
 				      ChannelRetry::Default(), // how connections will be retried
 				      // host names or IP address of remote endpoint
 				      // with port remote endpoint is listening on
-				      {IPEndpoint(outstation.address, outstation.port)},
+				      {IPEndpoint(outstation->address, outstation->port)},
 				      // adapter on which to attempt the connection (any adapter)
 				      "0.0.0.0",
 				      // optional listener interface for monitoring the channel
@@ -83,9 +83,9 @@ bool DNP3::start()
 	}
 
 	Logger::getLogger()->info("configured DNP3 TCP outstation is: %s:%d, Link Id %d",
-				  outstation.address.c_str(),
-				  outstation.port,
-				  outstation.linkId);
+				  outstation->address.c_str(),
+				  outstation->port,
+				  outstation->linkId);
 
 	// This object contains static configuration for the master, and transport/link layers
 	MasterStackConfig stackConfig;
@@ -101,7 +101,7 @@ bool DNP3::start()
 
 	// ... or you can override the default link layer settings
 	stackConfig.link.LocalAddr = masterId;
-	stackConfig.link.RemoteAddr = outstation.linkId;
+	stackConfig.link.RemoteAddr = outstation->linkId;
 
 	// Custom SOEHandler object
 	std::shared_ptr<ISOEHandler> SOEHandle =
@@ -146,9 +146,13 @@ bool DNP3::configure(ConfigCategory* config)
 {
 	this->lockConfig();
 
-        m_outstations.clear();
+	auto it = m_outstations.begin();
+	while (it != m_outstations.end())
+	{
+		it = m_outstations.erase(it);
+	}
 
-	DNP3::OutStationTCP outstation;
+	DNP3::OutStationTCP *outstation = new DNP3::OutStationTCP();
                 
 	if (config->itemExists("asset"))
 	{
@@ -170,12 +174,12 @@ bool DNP3::configure(ConfigCategory* config)
 	if (config->itemExists("outstation_tcp_address"))
 	{
 		// Overrides address
-		outstation.address = config->getValue("outstation_tcp_address");
+		outstation->address = config->getValue("outstation_tcp_address");
 	}
 	if (config->itemExists("outstation_tcp_port"))
 	{
 		// Overrides port
-		outstation.port = (unsigned short int)atoi(config->getValue("outstation_tcp_port").c_str());
+		outstation->port = (unsigned short int)atoi(config->getValue("outstation_tcp_port").c_str());
 	}
 
 	bool enableScan = config->itemExists("outstation_scan_enable") &&
@@ -197,7 +201,7 @@ bool DNP3::configure(ConfigCategory* config)
 	if (config->itemExists("outstation_id"))
 	{
 		// Overrides link id
-		outstation.linkId = (uint16_t)atoi(config->getValue("outstation_id").c_str());
+		outstation->linkId = (uint16_t)atoi(config->getValue("outstation_id").c_str());
 	}
 
 	// Add this outstation to teh object
