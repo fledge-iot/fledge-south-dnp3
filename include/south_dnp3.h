@@ -72,6 +72,11 @@ class DNP3
 			{
 				delete m_manager;
 			}
+			auto it = m_outstations.begin();
+			while (it != m_outstations.end())
+			{
+				it = m_outstations.erase(it);
+			}
 		};
 
 		// Lock configuration items
@@ -102,8 +107,8 @@ class DNP3
 		uint16_t
 			getMasterLinkId() { return m_masterId; };
 
-		// Add outstaion
-		void	addOutStationTCP(const OutStationTCP& outstation)
+		// Add outstation
+		void	addOutStationTCP(OutStationTCP *outstation)
 		{
 			m_outstations.push_back(outstation);	
 		};
@@ -128,7 +133,7 @@ class DNP3
 			}
 		};
 		bool	configure(ConfigCategory* config);
-		bool	enableScan(bool val) { m_enableScan = val; };
+		void	enableScan(bool val) { m_enableScan = val; };
 		bool	isScanEnabled() const { return m_enableScan; };
 		unsigned long
 			getOutstationScanInterval() const
@@ -153,7 +158,7 @@ class DNP3
 		void			*m_data;
 		// vector of Outstations
 		// Note: only one is handled right now
-		std::vector<DNP3::OutStationTCP>
+		std::vector<DNP3::OutStationTCP *>
 					m_outstations;
 };
 
