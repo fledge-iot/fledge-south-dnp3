@@ -1,7 +1,7 @@
 #ifndef _DNP3_H
 #define _DNP3_H
 /*
- * FogLAMP DNP3 class
+ * Fledge DNP3 class
  *
  * Copyright (c) 2019 Dianomic Systems
  *
@@ -34,7 +34,7 @@
 #define DEFAULT_ASSETNAME_PREFIX		"dnp3_"
 
 #define ONLINE_FLAG_ALL_OBJECTS			0x01
-// DNP3 class for DNP3 FogLAMP South plugin
+// DNP3 class for DNP3 Fledge South plugin
 class DNP3
 {
 	public:
@@ -171,7 +171,7 @@ using namespace opendnp3;
 
 namespace asiodnp3
 {
-	// This class defines a custom SOE handler for data ingest in FogLAMP
+	// This class defines a custom SOE handler for data ingest in Fledge
 	class dnp3SOEHandler : public opendnp3::ISOEHandler
 	{
 		public:
@@ -236,7 +236,7 @@ namespace asiodnp3
 						 const std::string& objectType);
 
 			// Process a data element from callback
-			// and ingest data into FogLAMP
+			// and ingest data into Fledge
 			template<class T> void dataElement(const opendnp3::HeaderInfo& info,
 							   const T& value,
 							   uint16_t index,

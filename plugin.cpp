@@ -1,5 +1,5 @@
 /*
- * FogLAMP DNP3 south plugin.
+ * Fledge DNP3 south plugin.
  *
  * Copyright (c) 2019 Dianomic Systems
  *

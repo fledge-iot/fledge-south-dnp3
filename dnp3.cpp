@@ -1,5 +1,5 @@
 /*
- * FogLAMP DNP3 class.
+ * Fledge DNP3 class.
  *
  * Copyright (c) 2019 Dianomic Systems
  *
@@ -217,7 +217,7 @@ bool DNP3::configure(ConfigCategory* config)
  * from outstation
  *
  * For each element a routine is called which
- * ingest data into FogLAMP
+ * ingest data into Fledge
  *
  * @param    info	HeaderInfo structure
  * @param    valueis	Indexed Object<T> values
@@ -250,7 +250,7 @@ template<class T> void
 /**
  * Process a data element from callback
  *
- * This routine ingests data in FogLAMP
+ * This routine ingests data in Fledge
  *
  * @param    info	HeaderInfo structure
  * @param    value	Object<T> value
@@ -300,7 +300,7 @@ template<class T> void
 						objectType + "_"  + \
 						std::to_string(index);
 
-			// Ingest data in FogLAMP
+			// Ingest data in Fledge
 			m_dnp3->ingest(assetName, points);
 		}
 	}
