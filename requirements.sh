@@ -42,8 +42,8 @@ elif apt --version 2>/dev/null; then
 	echo Installing boost components
 	sudo apt install -y libboost-filesystem-dev
 	sudo apt install -y libboost-program-options-dev
-	sudo apt-get install clang-format
-	sudo apt-get install clang-tidy
+	sudo apt install -y clang-format
+	sudo apt install -y clang-tidy
 else
 	echo "Requirements cannot be automatically installed, please refer README.rst to install requirements manually"
 fi
