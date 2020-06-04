@@ -29,11 +29,12 @@ if [[ ( $os_name == *"Red Hat"* || $os_name == *"CentOS"* ) &&  $os_version == *
 	echo Installing development tools 7 components
 	sudo yum install -y yum-utils
 	sudo yum-config-manager --enable rhel-server-rhscl-7-rpms
+	sudo yum-config-manager --enable rhel-7-server-devtools-rpms
 	sudo yum install -y devtoolset-7
 	echo Installing boost components
 	sudo yum install -y boost-filesystem
 	sudo yum install -y boost-program-options
-	sudo yum install llvm-toolset-7-clang
+	sudo yum install -y llvm-toolset-7-clang
 	source scl_source enable devtoolset-7
 	export CC=/opt/rh/devtoolset-7/root/usr/bin/gcc
 	export CXX=/opt/rh/devtoolset-7/root/usr/bin/g++
