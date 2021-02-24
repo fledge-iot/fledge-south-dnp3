@@ -33,7 +33,7 @@ if [[ ( $os_name == *"Red Hat"* || $os_name == *"CentOS"* ) &&  $os_version == *
 	echo Installing boost components
 	sudo yum install -y boost-filesystem
 	sudo yum install -y boost-program-options
-	sudo yum install llvm-toolset-7-clang
+	sudo yum install -y llvm-toolset-7-clang
 	source scl_source enable devtoolset-7
 	export CC=/opt/rh/devtoolset-7/root/usr/bin/gcc
 	export CXX=/opt/rh/devtoolset-7/root/usr/bin/g++
