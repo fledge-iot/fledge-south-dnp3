@@ -288,11 +288,24 @@ template<class T> void
 		     (flag & static_cast<uint8_t>(BinaryQuality::STATE))))
 		{
 			std::vector<Datapoint *> points;
-			DatapointValue dVal(ValueToString(value));
-			// Datapoint name = objectType + index
-			// Example: Counter0, Counter1
-			std::string dataPointName = objectType + std::to_string(index);
-			points.push_back(new Datapoint(dataPointName, dVal));
+			if (objectType.compare("Analog") == 0)
+			{
+				double v = strtod(ValueToString(value).c_str(), NULL);
+				DatapointValue dVal(v);
+				// Datapoint name = objectType + index
+				// Example: Counter0, Counter1
+				std::string dataPointName = objectType + std::to_string(index);
+				points.push_back(new Datapoint(dataPointName, dVal));
+			}
+			else if (isBinary || objectType.compare("Counter") == 0)
+			{
+				long v = strtol(ValueToString(value).c_str(), NULL, 10);
+				DatapointValue dVal(v);
+				// Datapoint name = objectType + index
+				// Example: Counter0, Counter1
+				std::string dataPointName = objectType + std::to_string(index);
+				points.push_back(new Datapoint(dataPointName, dVal));
+			}
 
 			// Asset name name = im_label + objectType + _ + index
 			// Example: remote_20_Binary_0
