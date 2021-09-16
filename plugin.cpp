@@ -34,7 +34,7 @@ typedef void (*INGEST_CB)(void *, Reading);
 /**
  * Default configuration
  */
-const char *default_config = QUOTE({
+static const char *default_config = QUOTE({
 	"plugin" : {
 		"description" : "Simple DNP3 data change plugin",
 		"type" : "string",
