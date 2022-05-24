@@ -34,6 +34,7 @@ if [[ ( $os_name == *"Red Hat"* || $os_name == *"CentOS"* ) &&  $os_version == *
 	sudo yum install -y boost-filesystem
 	sudo yum install -y boost-program-options
 	sudo yum install -y llvm-toolset-7-clang
+	sudo yum install -y asio-devel
 	source scl_source enable devtoolset-7
 	export CC=/opt/rh/devtoolset-7/root/usr/bin/gcc
 	export CXX=/opt/rh/devtoolset-7/root/usr/bin/g++
@@ -44,6 +45,7 @@ elif apt --version 2>/dev/null; then
 	sudo apt install -y libboost-program-options-dev
 	sudo apt install -y clang-format
 	sudo apt install -y clang-tidy
+	sudo apt install -y libasio-dev
 else
 	echo "Requirements cannot be automatically installed, please refer README.rst to install requirements manually"
 fi
@@ -59,9 +61,12 @@ fi
 
 if [ ! -d "${directory}/opendnp3" ]; then
 	cd $directory
-	echo "Fetching Open DNP3 library 'release-2.x' in ${directory} ..."
-	git clone --recursive -b release-2.x https://github.com/dnp3/opendnp3.git
+	echo "Fetching Open DNP3 library 'release' in ${directory} ..."
+	git clone --recursive -b release https://github.com/dnp3/opendnp3.git
 	cd opendnp3
+	# Until we hve a newer libasio on all the platforms we support we will
+	# stick with release 2.2.0 of opendnp3
+	git checkout tags/2.2.0
 	#sed -e "s/buffer = {0x00}/buffer = {{0x00}}/" < cpp/lib/include/opendnp3/app/OctetData.h \
 	#	> cpp/lib/include/opendnp3/app/OctetData.h.$$ && \
 	#	mv cpp/lib/include/opendnp3/app/OctetData.h cpp/lib/include/opendnp3/app/OctetData.h.orig && \
