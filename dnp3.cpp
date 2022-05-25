@@ -71,9 +71,10 @@ bool DNP3::start()
 				      ChannelRetry::Default(), // how connections will be retried
 				      // host names or IP address of remote endpoint
 				      // with port remote endpoint is listening on
-				      {IPEndpoint(outstation->address, outstation->port)},
+				      outstation->address, 
 				      // adapter on which to attempt the connection (any adapter)
 				      "0.0.0.0",
+				      outstation->port,
 				      // optional listener interface for monitoring the channel
 				      PrintingChannelListener::Create());
 
