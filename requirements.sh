@@ -65,8 +65,13 @@ if [ ! -d "${directory}/opendnp3" ]; then
 	git clone --recursive -b release https://github.com/dnp3/opendnp3.git
 	cd opendnp3
 	# Until we hve a newer libasio on all the platforms we support we will
-	# stick with release 2.2.0 of opendnp3
-	git checkout tags/2.2.0
+	if [[ $os_name == *"Ubuntu"* && $os_version == *"20"* ]]; then
+		# stick with release 2.3.0 of opendnp3
+		git checkout tags/2.3.0
+	else
+		# stick with release 2.2.0 of opendnp3
+		git checkout tags/2.2.0
+	fi
 	#sed -e "s/buffer = {0x00}/buffer = {{0x00}}/" < cpp/lib/include/opendnp3/app/OctetData.h \
 	#	> cpp/lib/include/opendnp3/app/OctetData.h.$$ && \
 	#	mv cpp/lib/include/opendnp3/app/OctetData.h cpp/lib/include/opendnp3/app/OctetData.h.orig && \
