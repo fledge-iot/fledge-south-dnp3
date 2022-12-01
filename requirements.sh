@@ -45,7 +45,13 @@ elif apt --version 2>/dev/null; then
 	sudo apt install -y libboost-program-options-dev
 	sudo apt install -y clang-format
 	sudo apt install -y clang-tidy
-	sudo apt install -y libasio-dev
+	if [[ $os_name == *"Raspbian"*  ]]; then
+                wget -O /tmp/libasio-dev_1.10.8-1_all.deb  http://ftp.osuosl.org/pub/ubuntu/pool/universe/a/asio/libasio-dev_1.10.8-1_all.deb
+                sudo apt install -y /tmp/libasio-dev_1.10.8-1_all.deb
+                rm /tmp/libasio-dev_1.10.8-1_all.deb
+        else
+                sudo apt install -y libasio-dev
+        fi
 else
 	echo "Requirements cannot be automatically installed, please refer README.rst to install requirements manually"
 fi
