@@ -45,7 +45,15 @@ elif apt --version 2>/dev/null; then
 	sudo apt install -y libboost-program-options-dev
 	sudo apt install -y clang-format
 	sudo apt install -y clang-tidy
-	sudo apt install -y libasio-dev
+	if [[ $os_name == *"Raspbian"*  || $os_name == *"Debian"* ]]; then
+                sudo apt remove -y libasio-dev
+				sudo apt autoremove -y 
+				wget -O /tmp/libasio-dev_1.10.8-1_all.deb  http://ftp.osuosl.org/pub/ubuntu/pool/universe/a/asio/libasio-dev_1.10.8-1_all.deb
+                sudo apt install -y /tmp/libasio-dev_1.10.8-1_all.deb
+                rm /tmp/libasio-dev_1.10.8-1_all.deb
+        else
+                sudo apt install -y libasio-dev
+        fi
 else
 	echo "Requirements cannot be automatically installed, please refer README.rst to install requirements manually"
 fi
@@ -88,4 +96,7 @@ if [ ! -d "${directory}/opendnp3" ]; then
 	cd ..
 	echo Set the environment variable OPENDNP3_LIB_DIR to `pwd`
 	echo export OPENDNP3_LIB_DIR=`pwd`
+	echo Set the environment FLEDGE_ROOT
+	echo Set the environment FLEDGE_SRC
+	echo "export FLEDGE_SRC=\$FLEDGE_ROOT"
 fi
