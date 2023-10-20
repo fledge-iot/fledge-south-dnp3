@@ -20,40 +20,38 @@
 ## Author: Massimiliano Pinto
 ##
 
-fledge_location=`pwd`
-os_name=`(grep -o '^NAME=.*' /etc/os-release | cut -f2 -d\" | sed 's/"//g')`
-os_version=`(grep -o '^VERSION_ID=.*' /etc/os-release | cut -f2 -d\" | sed 's/"//g')`
-echo "Platform is ${os_name}, Version: ${os_version}"
+OS_NAME=$(grep -o '^NAME=.*' /etc/os-release | cut -f2 -d\" | sed 's/"//g')
+OS_VERSION=$(grep -o '^VERSION_ID=.*' /etc/os-release | cut -f2 -d\" | sed 's/"//g')
+echo "Platform is ${OS_NAME}, Version: ${OS_VERSION}"
 
-if [[ ( $os_name == *"Red Hat"* || $os_name == *"CentOS"* ) &&  $os_version == *"7"* ]]; then
-	echo Installing development tools 7 components
-	sudo yum install -y yum-utils
-	sudo yum-config-manager --enable rhel-server-rhscl-7-rpms
-	sudo yum install -y devtoolset-7
-	echo Installing boost components
-	sudo yum install -y boost-filesystem
-	sudo yum install -y boost-program-options
-	sudo yum install -y llvm-toolset-7-clang
-	sudo yum install -y asio-devel
-	source scl_source enable devtoolset-7
-	export CC=/opt/rh/devtoolset-7/root/usr/bin/gcc
-	export CXX=/opt/rh/devtoolset-7/root/usr/bin/g++
-	source scl_source enable llvm-toolset-7
+if [[ ( ${OS_NAME} == *"Red Hat"* || ${OS_NAME} == *"CentOS"* ) ]]; then
+    sudo yum install -y boost-filesystem boost-program-options asio-devel
+    if [[ ${OS_VERSION} -eq "7" ]]; then
+        echo "Installing development tools 7 components..."
+        sudo yum install -y yum-utils
+        sudo yum-config-manager --enable rhel-server-rhscl-7-rpms
+        sudo yum install -y devtoolset-7
+        sudo yum install -y llvm-toolset-7-clang
+        source scl_source enable devtoolset-7
+        export CC=/opt/rh/devtoolset-7/root/usr/bin/gcc
+        export CXX=/opt/rh/devtoolset-7/root/usr/bin/g++
+        source scl_source enable llvm-toolset-7
+    fi
 elif apt --version 2>/dev/null; then
 	echo Installing boost components
 	sudo apt install -y libboost-filesystem-dev
 	sudo apt install -y libboost-program-options-dev
 	sudo apt install -y clang-format
 	sudo apt install -y clang-tidy
-	if [[ $os_name == *"Raspbian"*  || $os_name == *"Debian"* ]]; then
-                sudo apt remove -y libasio-dev
-				sudo apt autoremove -y 
-				wget -O /tmp/libasio-dev_1.10.8-1_all.deb  http://ftp.osuosl.org/pub/ubuntu/pool/universe/a/asio/libasio-dev_1.10.8-1_all.deb
-                sudo apt install -y /tmp/libasio-dev_1.10.8-1_all.deb
-                rm /tmp/libasio-dev_1.10.8-1_all.deb
-        else
-                sudo apt install -y libasio-dev
-        fi
+    if [[ ${OS_NAME} == *"Raspbian"*  || ${OS_NAME} == *"Debian"* ]]; then
+        sudo apt remove -y libasio-dev
+        sudo apt autoremove -y
+        wget -O /tmp/libasio-dev_1.10.8-1_all.deb  http://ftp.osuosl.org/pub/ubuntu/pool/universe/a/asio/libasio-dev_1.10.8-1_all.deb
+        sudo apt install -y /tmp/libasio-dev_1.10.8-1_all.deb
+        rm /tmp/libasio-dev_1.10.8-1_all.deb
+    else
+        sudo apt install -y libasio-dev
+    fi
 else
 	echo "Requirements cannot be automatically installed, please refer README.rst to install requirements manually"
 fi
@@ -73,7 +71,7 @@ if [ ! -d "${directory}/opendnp3" ]; then
 	git clone --recursive -b release https://github.com/dnp3/opendnp3.git
 	cd opendnp3
 	# Until we hve a newer libasio on all the platforms we support we will
-	if [[ $os_name == *"Ubuntu"* && $os_version == *"20"* ]]; then
+	if [[ ${OS_NAME} == *"Ubuntu"* && ${OS_VERSION} == *"20"* ]]; then
 		# stick with release 2.3.0 of opendnp3
 		git checkout tags/2.3.0
 	else
