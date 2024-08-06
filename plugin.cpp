@@ -96,6 +96,39 @@ static const char *default_config = QUOTE({
 		"default" : DEFAULT_APPLICATION_TIMEOUT,
 		"displayName" : "Network timeout",
 		"order" : "8"
+		},
+	"outstations": {
+		"description": "A list of DNP3 outstations to connect",
+		"type": "list",
+		"items" : "object",
+		"default": "[]",
+		"order" : "9",
+		"displayName" : "Outstations list",
+		"properties" : {
+			"linkid" : {
+					"description" : "The outstation link id",
+					"displayName" : "Link id",
+					"type" : "integer",
+					"maximum" : "65535",
+					"minimum" : "1",
+					"default" : "10"
+			},
+			"address" : {
+					"description" : "The outstation TCP address or name ",
+					"displayName" : "TCP Address",
+					"type" : "string",
+					"default" : "127.0.0.1"
+				},
+			"port" : {
+					"description" : "The outstation TCP port",
+					"displayName" : "TCP Port",
+					"type" : "integer",
+					"options" : [ "integer","float", "boolean" ],
+					"default" : "20000",
+					"maximum" : "65535",
+					"minimum" : "1"
+				}
+			}
 		}
 	});
 

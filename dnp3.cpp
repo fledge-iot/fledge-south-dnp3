@@ -16,6 +16,8 @@
 #include <plugin_exception.h>
 #include <config_category.h>
 #include <rapidjson/document.h>
+#include "rapidjson/error/error.h"
+#include "rapidjson/error/en.h"
 #include <version.h>
 #include <string>
 #include <reading.h>
@@ -31,6 +33,8 @@ using namespace asiodnp3;
 using namespace openpal;
 using namespace asiopal;
 using namespace opendnp3;
+
+using namespace rapidjson;
 
 /**
  * Start the DNP3 master and connect to configured outstation
@@ -160,8 +164,6 @@ bool DNP3::configure(ConfigCategory* config)
 		it = m_outstations.erase(it);
 	}
 
-	DNP3::OutStationTCP *outstation = new DNP3::OutStationTCP();
-                
 	if (config->itemExists("asset"))
 	{
 		this->setAssetName(config->getValue("asset"));
@@ -179,15 +181,80 @@ bool DNP3::configure(ConfigCategory* config)
 	{       
 		this->setMasterLinkId((uint16_t)atoi(DEFAULT_MASTER_LINK_ID));
 	}
-	if (config->itemExists("outstation_tcp_address"))
+
+	bool oneOutstation = true;
+	if (config->itemExists("outstations") && config->isList("outstations"))
 	{
-		// Overrides address
-		outstation->address = config->getValue("outstation_tcp_address");
+		string outstations = config->getValue("outstations");
+		Document document;
+		if (document.Parse(outstations.c_str()).HasParseError())
+		{
+			Logger::getLogger()->error("Error while parsing '%s' type 'list' item: %s",
+					"outstations",
+					GetParseError_En(document.GetParseError()));
+			return false;
+		}
+		if (!document.IsArray())
+		{
+			Logger::getLogger()->error("Error '%s' type 'list' item is not an arrary",
+					"outstations");
+			return false;
+		}
+		for (auto& o : document.GetArray())
+		{
+			if (!o.IsObject())
+			{
+				Logger::getLogger()->error("Error '%s' type 'list': array element is not an object",
+						"outstations");
+				return false;
+			}
+			DNP3::OutStationTCP *outstation = new DNP3::OutStationTCP();
+			for (auto& v : o.GetObject())
+                        {
+				string key = v.name.GetString();
+				string value = config->to_string(v.value);
+				Logger::getLogger()->error(">>> %s: %s", key.c_str(), value.c_str());
+				if (key == "address")
+				{
+					outstation->address = value;
+				}
+				if (key == "port")
+				{
+					outstation->port = (unsigned short int)atoi(value.c_str());
+				}
+				if (key == "linkid")
+				{
+					outstation->linkId = (uint16_t)atoi(value.c_str());
+				}
+                        }
+
+			// Add this outstation to the array
+			this->addOutStationTCP(outstation);
+
+			oneOutstation = false;
+		}
 	}
-	if (config->itemExists("outstation_tcp_port"))
+
+	if (oneOutstation)
 	{
-		// Overrides port
-		outstation->port = (unsigned short int)atoi(config->getValue("outstation_tcp_port").c_str());
+		DNP3::OutStationTCP *outstation = new DNP3::OutStationTCP();
+		if (config->itemExists("outstation_id"))
+		{
+			// Overrides link id
+			outstation->linkId = (uint16_t)atoi(config->getValue("outstation_id").c_str());
+		}
+		if (config->itemExists("outstation_tcp_address"))
+		{
+			// Overrides address
+			outstation->address = config->getValue("outstation_tcp_address");
+		}
+		if (config->itemExists("outstation_tcp_port"))
+		{
+			// Overrides port
+			outstation->port = (unsigned short int)atoi(config->getValue("outstation_tcp_port").c_str());
+		}
+		// Add this outstation to the array
+		this->addOutStationTCP(outstation);
 	}
 
 	bool enableScan = config->itemExists("outstation_scan_enable") &&
@@ -205,15 +272,6 @@ bool DNP3::configure(ConfigCategory* config)
 	{
 		this->setTimeout(atol(config->getValue("data_fetch_timeout").c_str()));
 	}
-
-	if (config->itemExists("outstation_id"))
-	{
-		// Overrides link id
-		outstation->linkId = (uint16_t)atoi(config->getValue("outstation_id").c_str());
-	}
-
-	// Add this outstation to teh object
-	this->addOutStationTCP(outstation);
 
 	this->unlockConfig();
 
