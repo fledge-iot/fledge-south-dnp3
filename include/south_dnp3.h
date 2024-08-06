@@ -203,14 +203,17 @@ namespace asiodnp3
 			{
 				return this->dnp3DataCallback(info,values, "Analog");
 			};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<AnalogOutputStatus>>& values) override
+			{
+				return this->dnp3DataCallback(info,values, "AnalogOutput");
+			};
 
 			// We don't get data from these
 			void Process(const HeaderInfo& info,
 				     const ICollection<Indexed<DoubleBitBinary>>& values) override {};
 			void Process(const HeaderInfo& info,
 				     const ICollection<Indexed<FrozenCounter>>& values) override {};
-			void Process(const HeaderInfo& info,
-				     const ICollection<Indexed<AnalogOutputStatus>>& values) override {};
 			void Process(const HeaderInfo& info,
 				     const ICollection<Indexed<OctetString>>& values) override {};
 			void Process(const HeaderInfo& info,

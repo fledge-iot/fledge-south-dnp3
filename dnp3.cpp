@@ -47,8 +47,6 @@ bool DNP3::start()
 	bool scanEnabled = this->isScanEnabled();
 	unsigned long applicationTimeout = this->getTimeout();
 	unsigned long scanInterval = this->getOutstationScanInterval();
-	// We currently handle one outstation only
-	OutStationTCP *outstation = m_outstations[0];
 
 	// Create DNP3 manager object
 	// Set threads and console logging
@@ -59,82 +57,91 @@ bool DNP3::start()
 
 	this->unlockConfig();
 
-	string remoteLabel = "remote_" + to_string(outstation->linkId);
-
 	// Set log levels
 	const auto logLevels = levels::NOTHING | flags::WARN | flags::ERR;
 
-	// Create TCP channel for outstation
-	std::shared_ptr<IChannel> channel =
-		manager->AddTCPClient(m_serviceName + "_" + remoteLabel, // alias in log messages
+	// Iterate outstation array
+	for (OutStationTCP *outstation : m_outstations)
+	{
+		string remoteLabel = "remote_" + to_string(outstation->linkId);
+
+		// Create TCP channel for outstation
+		std::shared_ptr<IChannel> channel =
+			manager->AddTCPClient(m_serviceName + "_" + remoteLabel, // alias in log messages
 				      logLevels, // filter what gets logged
 				      ChannelRetry::Default(), // how connections will be retried
 				      // host names or IP address of remote endpoint
-				      // with port remote endpoint is listening on
 				      outstation->address, 
-				      // adapter on which to attempt the connection (any adapter)
+				      // interface adapter on which to attempt the connection (any adapter)
 				      "0.0.0.0",
+				      // wich port the remote endpoint is listening on
 				      outstation->port,
 				      // optional listener interface for monitoring the channel
 				      PrintingChannelListener::Create());
 
-	if (!channel)
-	{
-		return false;
+		if (!channel)
+		{
+			return false;
+		}
+
+		Logger::getLogger()->info("configured DNP3 TCP outstation is: %s:%d, Link Id %d",
+					  outstation->address.c_str(),
+					  outstation->port,
+					  outstation->linkId);
+
+		// This object contains static configuration for the master, and transport/link layers
+		MasterStackConfig stackConfig;
+
+		// you can optionally override these defaults like:
+		// setting the application layer response timeout
+		// or change behaviors on the master
+		stackConfig.master.responseTimeout = TimeDuration::Seconds(applicationTimeout);
+
+		// Don't perform Integrity Poll outstation at startup
+		stackConfig.master.startupIntegrityClassMask = ClassField::None(); ;
+
+		// Override the default link layer settings
+		stackConfig.link.LocalAddr = masterId;  // Master id link
+		stackConfig.link.RemoteAddr = outstation->linkId; // Outstation id link
+
+		// Custom SOEHandler object for callback
+		std::shared_ptr<ISOEHandler> SOEHandle =
+			std::make_shared<dnp3SOEHandler>(this, remoteLabel);
+		if (!SOEHandle)
+		{
+			return false;
+		}
+
+		// Create a master bound to a particular channel
+		std::shared_ptr<IMaster> master =
+				channel->AddMaster("master_" + to_string(masterId), // alias for logging
+				SOEHandle,  // IOEHandler (interface)
+				asiodnp3::DefaultMasterApplication::Create(), // Application (interface)
+				// static stack configuration
+				stackConfig);
+
+		if (!master)
+		{
+			return false;
+		}
+
+		// Do an integrity poll (Class 3/2/1/0) once per specified seconds
+		if (scanEnabled)
+		{
+			Logger::getLogger()->info("Outstation scan (Integrity Poll) is enabled");
+						  master->AddClassScan(ClassField::AllClasses(),
+						  TimeDuration::Seconds(scanInterval));
+		}
+
+		// Enable the DNP3 master and connect to outstation
+		if (!master->Enable())
+		{
+			return false;
+		}
 	}
 
-	Logger::getLogger()->info("configured DNP3 TCP outstation is: %s:%d, Link Id %d",
-				  outstation->address.c_str(),
-				  outstation->port,
-				  outstation->linkId);
-
-	// This object contains static configuration for the master, and transport/link layers
-	MasterStackConfig stackConfig;
-
-	// you can optionally override these defaults like:
-	// setting the application layer response timeout
-	// or change behaviors on the master
-	stackConfig.master.responseTimeout =
-		TimeDuration::Seconds(applicationTimeout);
-
-	// Don't perform Integrity Poll outstation at startup
-	stackConfig.master.startupIntegrityClassMask = ClassField::None(); ;
-
-	// ... or you can override the default link layer settings
-	stackConfig.link.LocalAddr = masterId;
-	stackConfig.link.RemoteAddr = outstation->linkId;
-
-	// Custom SOEHandler object
-	std::shared_ptr<ISOEHandler> SOEHandle =
-		std::make_shared<dnp3SOEHandler>(this, remoteLabel);
-	if (!SOEHandle)
-	{
-		return false;
-	}
-
-	// Create a master bound to a particular channel
-	std::shared_ptr<IMaster> master =
-		channel->AddMaster("master_" + to_string(masterId), // alias for logging
-				   SOEHandle,  // IOEHandler (interface)
-				   asiodnp3::DefaultMasterApplication::Create(), // Application (interface)
-				   stackConfig  // static stack configuration
-        );
-
-	if (!master)
-	{
-		return false;
-	}
-
-	// Do an integrity poll (Class 3/2/1/0) once per specified seconds
-	if (scanEnabled)
-	{
-		Logger::getLogger()->info("Outstation scan (Integrity Poll) is enabled");
-		master->AddClassScan(ClassField::AllClasses(),
-				     TimeDuration::Seconds(scanInterval));
-	}
-
-	// Enable the DNP3 master and connect to outstation
-	return master->Enable();
+	// Success
+	return true;
 }
 
 /**
@@ -289,7 +296,7 @@ template<class T> void
 		     (flag & static_cast<uint8_t>(BinaryQuality::STATE))))
 		{
 			std::vector<Datapoint *> points;
-			if (objectType.compare("Analog") == 0)
+			if (objectType.compare("Analog") == 0 || objectType.compare("AnalogOutput") == 0)
 			{
 				double v = strtod(ValueToString(value).c_str(), NULL);
 				DatapointValue dVal(v);
