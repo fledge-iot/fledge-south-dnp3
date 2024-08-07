@@ -233,6 +233,12 @@ bool DNP3::configure(ConfigCategory* config)
 
 			oneOutstation = false;
 		}
+		if (!oneOutstation)
+		{
+			Logger::getLogger()->warn("Using configuration in 'outstations' list item, " \
+						"ignoring the single outstation configuration ('outstation_id', " \
+						"'outstation_tcp_address' and 'outstation_tcp_port')");
+		}
 	}
 
 	if (oneOutstation)
