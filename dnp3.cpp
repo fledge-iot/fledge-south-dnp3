@@ -354,7 +354,8 @@ template<class T> void
 		     (flag & static_cast<uint8_t>(BinaryQuality::STATE))))
 		{
 			std::vector<Datapoint *> points;
-			if (objectType.compare("Analog") == 0 || objectType.compare("AnalogOutput") == 0)
+			if (objectType.compare("Analog") == 0 ||
+			    objectType.compare("AnalogOutput") == 0)
 			{
 				double v = strtod(ValueToString(value).c_str(), NULL);
 				DatapointValue dVal(v);
@@ -363,7 +364,8 @@ template<class T> void
 				std::string dataPointName = objectType + std::to_string(index);
 				points.push_back(new Datapoint(dataPointName, dVal));
 			}
-			else if (isBinary || objectType.compare("Counter") == 0)
+			else if (isBinary ||
+				 objectType.compare("Counter") == 0)
 			{
 				long v = strtol(ValueToString(value).c_str(), NULL, 10);
 				DatapointValue dVal(v);
@@ -385,3 +387,99 @@ template<class T> void
 	}
 }
 
+/**
+ * Data callback for DoubleBitBinary solicited and usolicited messagess
+ * from outstation
+ *
+ * For each element a routine is called which
+ * ingest data into Fledge
+ *
+ * @param    info	HeaderInfo structure
+ * @param    valueis	Indexed Object<T> values
+ * @param    objectType	The object type
+ */
+template<class T> void
+	dnp3SOEHandler::dnp3DataCallbackDBB(const HeaderInfo& info,
+					 const ICollection<Indexed<T>>& values,
+					 const string& objectType)
+{       
+	Logger::getLogger()->debug("DoubleBitBinary Callback for outstation (%s) data: "
+				   "object type '%s', # of elements %d",
+				   m_label.c_str(),
+				   objectType.c_str(),
+				   values.Count());
+	// Lambda function for data element
+	auto processData = [&](const Indexed<T>& pair)
+	{
+		this->dataElementDBB<T>(info,
+				     pair.value,
+				     pair.index,
+				     objectType);
+	};
+
+	// Process all elements
+	values.ForeachItem(processData);
+}
+
+/**
+ * Process a DoubleBitBinary data element from callback
+ *
+ * This routine ingests data in Fledge
+ *
+ * @param    info	HeaderInfo structure
+ * @param    value	Object<T> value
+ * @param    index	Index value of this data
+ * @param    objectType	The object type
+ */
+template<class T> void
+	dnp3SOEHandler::dataElementDBB(const HeaderInfo& info,
+				    const T& value,
+				    uint16_t index,
+				    const std::string& objectType)
+{
+
+	Logger::getLogger()->debug("DoubleBitBinary callback for %s, object %s[%d], isEvent %d, "
+				   "flagsValid %d, flags %d, value %s, time %lu",
+				   m_label.c_str(),
+				   objectType.c_str(),
+				   index,
+				   info.isEventVariation,
+				   info.flagsValid,
+				   static_cast<int>(value.flags.value),
+				   ValueToStringDBB(value).c_str(),
+				   value.time.value);
+
+
+	if (m_dnp3)
+	{
+		bool event = info.isEventVariation == true;
+		int flag = static_cast<int>(value.flags.value);
+		bool isBinary = objectType.compare("DoubleBitBinary") == 0;
+
+		// 0x01 means ONLINE for all Objects
+		// STATE is checked for Binary and BinaryOutputStatus objects
+		if (flag == ONLINE_FLAG_ALL_OBJECTS || isBinary)
+		{
+			std::vector<Datapoint *> points;
+			if (objectType.compare("DoubleBitBinary") == 0)
+			{
+				// Convert value to string
+				string v = ValueToStringDBB(value);
+				DatapointValue dVal(v);
+				// Datapoint name = objectType + index
+				// Example: Counter0, Counter1
+				std::string dataPointName = objectType + std::to_string(index);
+				points.push_back(new Datapoint(dataPointName, dVal));
+			}
+
+			// Asset name name = im_label + objectType + _ + index
+			// Example: remote_20_Binary_0
+			std::string assetName = m_label + "_" + \
+						objectType + "_"  + \
+						std::to_string(index);
+
+			// Ingest data in Fledge
+			m_dnp3->ingest(assetName, points);
+		}
+	}
+}

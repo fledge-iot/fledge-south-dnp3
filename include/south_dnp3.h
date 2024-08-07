@@ -162,9 +162,16 @@ class DNP3
 					m_outstations;
 };
 
+// Convert to string for most object types
 template<class T> std::string ValueToString(const T& meas)
 {
 	return std::to_string(meas.value);
+}
+
+// Convert to string for DoubleBitBinary
+template<class T> std::string ValueToStringDBB(const T& meas)
+{
+	return DoubleBitToString(meas.value);
 }
 
 using namespace opendnp3;
@@ -208,10 +215,13 @@ namespace asiodnp3
 			{
 				return this->dnp3DataCallback(info,values, "AnalogOutput");
 			};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<DoubleBitBinary>>& values) //override {};
+			{
+				return this->dnp3DataCallbackDBB(info,values, "DoubleBitBinary");
+			};
 
 			// We don't get data from these
-			void Process(const HeaderInfo& info,
-				     const ICollection<Indexed<DoubleBitBinary>>& values) override {};
 			void Process(const HeaderInfo& info,
 				     const ICollection<Indexed<FrozenCounter>>& values) override {};
 			void Process(const HeaderInfo& info,
@@ -237,10 +247,22 @@ namespace asiodnp3
 				dnp3DataCallback(const HeaderInfo& info,
 						 const ICollection<Indexed<T>>& values,
 						 const std::string& objectType);
+			// Callback for data receiving of DoubleBitBinary
+			// solicited and unsolicited messages
+			template<class T> void
+				dnp3DataCallbackDBB(const HeaderInfo& info,
+						 const ICollection<Indexed<T>>& values,
+						 const std::string& objectType);
 
 			// Process a data element from callback
 			// and ingest data into Fledge
 			template<class T> void dataElement(const opendnp3::HeaderInfo& info,
+							   const T& value,
+							   uint16_t index,
+							   const std::string& objectName);
+			// Process a data element from callback of DoubleBitBinary
+			// and ingest data into Fledge
+			template<class T> void dataElementDBB(const opendnp3::HeaderInfo& info,
 							   const T& value,
 							   uint16_t index,
 							   const std::string& objectName);
