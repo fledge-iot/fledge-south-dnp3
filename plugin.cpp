@@ -53,6 +53,8 @@ static const char *default_config = QUOTE({
 		"type" : "integer",
 		"default" : DEFAULT_MASTER_LINK_ID,
 		"displayName" : "Master link Id",
+		"maximum" : "65519",
+		"minimum" : "1",
 		"order" : "2"
 		},
 	"outstation_tcp_address" : {
@@ -103,13 +105,13 @@ static const char *default_config = QUOTE({
 		"items" : "object",
 		"default": "[]",
 		"order" : "9",
-		"displayName" : "Outstations list",
+		"displayName" : "Outstations",
 		"properties" : {
 			"linkid" : {
 					"description" : "The outstation link id",
-					"displayName" : "Link id",
+					"displayName" : "Link ID",
 					"type" : "integer",
-					"maximum" : "65535",
+					"maximum" : "65519",
 					"minimum" : "1",
 					"default" : "10"
 			},
@@ -123,9 +125,8 @@ static const char *default_config = QUOTE({
 					"description" : "The outstation TCP port",
 					"displayName" : "TCP Port",
 					"type" : "integer",
-					"options" : [ "integer","float", "boolean" ],
 					"default" : "20000",
-					"maximum" : "65535",
+					"maximum" : "65000",
 					"minimum" : "1"
 				}
 			}
