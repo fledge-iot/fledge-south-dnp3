@@ -133,8 +133,9 @@ bool DNP3::start()
 		if (scanEnabled)
 		{
 			Logger::getLogger()->info("Outstation scan (Integrity Poll) is enabled");
-						  master->AddClassScan(ClassField::AllClasses(),
-						  TimeDuration::Seconds(scanInterval));
+
+			master->AddClassScan(ClassField::AllClasses(),
+					     TimeDuration::Seconds(scanInterval));
 		}
 
 		// Enable the DNP3 master and connect to outstation
