@@ -53,6 +53,8 @@ static const char *default_config = QUOTE({
 		"type" : "integer",
 		"default" : DEFAULT_MASTER_LINK_ID,
 		"displayName" : "Master link Id",
+		"maximum" : "65519",
+		"minimum" : "1",
 		"order" : "2"
 		},
 	"outstation_tcp_address" : {
@@ -96,6 +98,51 @@ static const char *default_config = QUOTE({
 		"default" : DEFAULT_APPLICATION_TIMEOUT,
 		"displayName" : "Network timeout",
 		"order" : "8"
+		},
+	"outstations": {
+		"description": "A list of DNP3 outstations to connect",
+		"type": "list",
+		"items" : "object",
+		"default": "[]",
+		"order" : "9",
+		"displayName" : "Outstations",
+		"properties" : {
+			"linkid" : {
+					"description" : "The outstation link id",
+					"displayName" : "Link ID",
+					"type" : "integer",
+					"maximum" : "65519",
+					"minimum" : "1",
+					"default" : "10"
+			},
+			"address" : {
+					"description" : "The outstation TCP address or name ",
+					"displayName" : "TCP Address",
+					"type" : "string",
+					"default" : "127.0.0.1"
+				},
+			"port" : {
+					"description" : "The outstation TCP port",
+					"displayName" : "TCP Port",
+					"type" : "integer",
+					"default" : "20000",
+					"maximum" : "65000",
+					"minimum" : "1"
+				}
+			}
+		},
+		"appLogLevel": {
+			"type": "enumeration",
+			"default": "Normal",
+			"options": [
+				"Normal",
+				"Data",
+				"DataAndLink",
+				"All"
+			],
+			"description": "DNP3 communication debug objects",
+			"displayName": "DNP3 debug objects",
+			"order" : "10"
 		}
 	});
 
