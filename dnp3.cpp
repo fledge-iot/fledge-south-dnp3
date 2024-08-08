@@ -382,14 +382,17 @@ template<class T> void
 				points.push_back(new Datapoint(dataPointName, dVal));
 			}
 
-			// Asset name name = im_label + objectType + _ + index
-			// Example: remote_20_Binary_0
-			std::string assetName = m_label + "_" + \
-						objectType + "_"  + \
-						std::to_string(index);
+			if (points.size() > 0)
+			{
+				// Asset name name = im_label + objectType + _ + index
+				// Example: remote_20_Binary_0
+				std::string assetName = m_label + "_" + \
+							objectType + "_"  + \
+							std::to_string(index);
 
-			// Ingest data in Fledge
-			m_dnp3->ingest(assetName, points);
+				// Ingest data in Fledge
+				m_dnp3->ingest(assetName, points);
+			}
 		}
 	}
 }
@@ -477,16 +480,16 @@ template<class T> void
 				// Example: Counter0, Counter1
 				std::string dataPointName = objectType + std::to_string(index);
 				points.push_back(new Datapoint(dataPointName, dVal));
+
+				// Asset name name = im_label + objectType + _ + index
+				// Example: remote_20_Binary_0
+				std::string assetName = m_label + "_" + \
+							objectType + "_"  + \
+							std::to_string(index);
+
+				// Ingest data in Fledge
+				m_dnp3->ingest(assetName, points);
 			}
-
-			// Asset name name = im_label + objectType + _ + index
-			// Example: remote_20_Binary_0
-			std::string assetName = m_label + "_" + \
-						objectType + "_"  + \
-						std::to_string(index);
-
-			// Ingest data in Fledge
-			m_dnp3->ingest(assetName, points);
 		}
 	}
 }
