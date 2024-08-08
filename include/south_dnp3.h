@@ -3,7 +3,7 @@
 /*
  * Fledge DNP3 class
  *
- * Copyright (c) 2019 Dianomic Systems
+ * Copyright (c) 2019-2024 Dianomic Systems
  *
  * Released under the Apache 2.0 Licence
  *
@@ -145,6 +145,16 @@ class DNP3
 			m_outstationScanInterval = val;
 		};
 
+		void	setAppLogLevel(uint32_t level)
+		{
+			m_appLogLevel = level;
+		};
+		uint32_t
+			getAppLogLevel()
+		{
+			return m_appLogLevel;
+		};
+
 	private:
 		std::string		m_serviceName;
 		std::string		m_asset;
@@ -157,9 +167,9 @@ class DNP3
 		void			(*m_ingest)(void *, Reading);
 		void			*m_data;
 		// vector of Outstations
-		// Note: only one is handled right now
 		std::vector<DNP3::OutStationTCP *>
 					m_outstations;
+		uint32_t		m_appLogLevel;
 };
 
 // Convert to string for most object types

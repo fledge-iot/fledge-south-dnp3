@@ -27,6 +27,7 @@
 #include <thread>
 
 #include "south_dnp3.h"
+#include "dnp3_logger.h"
 
 using namespace std;
 using namespace asiodnp3;
@@ -51,18 +52,16 @@ bool DNP3::start()
 	bool scanEnabled = this->isScanEnabled();
 	unsigned long applicationTimeout = this->getTimeout();
 	unsigned long scanInterval = this->getOutstationScanInterval();
+	uint32_t logLevels = this->getAppLogLevel();
 
 	// Create DNP3 manager object
 	// Set threads and console logging
 	asiodnp3::DNP3Manager* manager = 
 		new asiodnp3::DNP3Manager(nThreads,
-					  asiodnp3::ConsoleLogger::Create());
+					  asiodnp3::Dnp3Logger::Create());
 	m_manager = manager;
 
 	this->unlockConfig();
-
-	// Set log levels
-	const auto logLevels = levels::NOTHING | flags::WARN | flags::ERR;
 
 	// Iterate outstation array
 	for (OutStationTCP *outstation : m_outstations)
@@ -197,7 +196,7 @@ bool DNP3::configure(ConfigCategory* config)
 		}
 		if (!document.IsArray())
 		{
-			Logger::getLogger()->error("Error '%s' type 'list' item is not an arrary",
+			Logger::getLogger()->error("Error '%s' type 'list' item is not an array",
 					"outstations");
 			return false;
 		}
@@ -214,7 +213,6 @@ bool DNP3::configure(ConfigCategory* config)
                         {
 				string key = v.name.GetString();
 				string value = config->to_string(v.value);
-				Logger::getLogger()->error(">>> %s: %s", key.c_str(), value.c_str());
 				if (key == "address")
 				{
 					outstation->address = value;
@@ -237,8 +235,8 @@ bool DNP3::configure(ConfigCategory* config)
 		if (!oneOutstation)
 		{
 			Logger::getLogger()->warn("Using configuration in 'outstations' list item, " \
-						"ignoring the single outstation configuration ('outstation_id', " \
-						"'outstation_tcp_address' and 'outstation_tcp_port')");
+						  "ignoring the single outstation configuration ('outstation_id', " \
+						  "'outstation_tcp_address' and 'outstation_tcp_port')");
 		}
 	}
 
@@ -278,6 +276,30 @@ bool DNP3::configure(ConfigCategory* config)
 	if (config->itemExists("data_fetch_timeout"))
 	{
 		this->setTimeout(atol(config->getValue("data_fetch_timeout").c_str()));
+	}
+
+	if (config->itemExists("appLogLevel"))
+	{
+	        int32_t logLevels = levels::NOTHING;
+
+		string appLevel = config->getValue("appLogLevel");
+		if (appLevel == "" || appLevel == "Normal")
+		{
+			logLevels = levels::NORMAL;
+		}
+		if (appLevel == "Data")
+		{
+			logLevels = levels::NORMAL | levels::ALL_APP_COMMS;
+		}
+		if (appLevel == "DataAndLink")
+		{
+			logLevels = levels::NORMAL | levels::ALL_COMMS;
+		}
+		if (appLevel == "All")
+		{
+			logLevels = levels::ALL;
+		}
+		this->setAppLogLevel(logLevels);
 	}
 
 	this->unlockConfig();

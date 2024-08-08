@@ -130,6 +130,19 @@ static const char *default_config = QUOTE({
 					"minimum" : "1"
 				}
 			}
+		},
+		"appLogLevel": {
+			"type": "enumeration",
+			"default": "Normal",
+			"options": [
+				"Normal",
+				"Data",
+				"DataAndLink",
+				"All"
+			],
+			"description": "DNP3 communication debug objects",
+			"displayName": "DNP3 debug objects",
+			"order" : "10"
 		}
 	});
 
