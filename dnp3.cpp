@@ -464,11 +464,10 @@ template<class T> void
 	{
 		bool event = info.isEventVariation == true;
 		int flag = static_cast<int>(value.flags.value);
-		bool isBinary = objectType.compare("DoubleBitBinary") == 0;
 
 		// 0x01 means ONLINE for all Objects
-		// STATE is checked for Binary and BinaryOutputStatus objects
-		if (flag == ONLINE_FLAG_ALL_OBJECTS || isBinary)
+		// STATE is checked for DoubleBitBinary object
+		if (flag & ONLINE_FLAG_ALL_OBJECTS)
 		{
 			std::vector<Datapoint *> points;
 			if (objectType.compare("DoubleBitBinary") == 0)
