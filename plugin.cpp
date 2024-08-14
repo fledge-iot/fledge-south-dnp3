@@ -46,7 +46,8 @@ static const char *default_config = QUOTE({
 		"type" : "string",
 		"default" : DEFAULT_ASSETNAME_PREFIX,
 		"displayName" : "Asset Name prefix",
-		"order" : "1"
+		"order" : "1",
+		"mandatory": "true"
 		},
 	"master_id" : {
 		"description" : "Master Link Id",
@@ -62,21 +63,26 @@ static const char *default_config = QUOTE({
 		"type" : "string",
 		"default" : DEFAULT_TCP_ADDR,
 		"displayName" : "Outstation address",
-		"order" : "3"
+		"order" : "3",
+		"mandatory": "true"
 		},
 	"outstation_tcp_port" : {
 		"description" : "Outstation TCP/IP port",
 		"type" : "integer",
 		"default" : DEFAULT_TCP_PORT,
 		"displayName" : "Outstation port",
-		"order" : "4"
+		"order" : "4",
+		"maximum" : "65000",
+		"minimum" : "1"
 		},
 	"outstation_id" : {
 		"description" : "Outstation Link Id",
 		"type" : "integer",
 		"default" : DEFAULT_OUTSTATION_ID,
 		"displayName" : "Outstation link Id",
-		"order" : "5"
+		"order" : "5",
+		"maximum" : "65519",
+		"minimum" : "1"
 		},
 	"outstation_scan_enable" : {
 		"description" : "Enable outstation data scan (Integrity Poll for all Classes)",
@@ -90,14 +96,16 @@ static const char *default_config = QUOTE({
 		"type" : "integer",
 		"default" : DEFAULT_OUTSTATION_SCAN_INTERVAL,
 		"displayName" : "Scan interval",
-		"order" : "7"
+		"order" : "7",
+		"minimum" : "1"
 		},
 	"data_fetch_timeout" : {
 		"description" : "Timeout in seconds while fetching data",
 		"type" : "integer",
 		"default" : DEFAULT_APPLICATION_TIMEOUT,
 		"displayName" : "Network timeout",
-		"order" : "8"
+		"order" : "8",
+		"minimum" : "1"
 		},
 	"outstations": {
 		"description": "A list of DNP3 outstations to connect",
@@ -119,7 +127,8 @@ static const char *default_config = QUOTE({
 					"description" : "The outstation TCP address or name ",
 					"displayName" : "TCP Address",
 					"type" : "string",
-					"default" : "127.0.0.1"
+					"default" : "127.0.0.1",
+					"mandatory": "true"
 				},
 			"port" : {
 					"description" : "The outstation TCP port",
