@@ -42,6 +42,7 @@ class Dnp3Logger final : public openpal::ILogHandler, private openpal::Uncopyabl
 			     logLevel != flags::WARN &&
 			     logLevel != flags::INFO))
 			{
+			
 				oss << " - " << entry.location;
 			}
 
@@ -80,6 +81,103 @@ class Dnp3Logger final : public openpal::ILogHandler, private openpal::Uncopyabl
 
 	private:
 		bool m_printLocation;
+};
+
+// Outstation channel state listener override class
+class DNP3ChannelListener : public IChannelListener
+{
+public:
+	virtual void OnStateChange(opendnp3::ChannelState state) override
+	{
+		const char *s = opendnp3::ChannelStateToString(state);
+		Logger::getLogger()->info("Outstation id %d: channel state change for %s:%d is '%s'",
+					m_outstation->linkId,
+					m_outstation->address.c_str(),
+					m_outstation->port,
+				s);
+	}
+
+	// Pass OutStationTCP pointer
+	static std::shared_ptr<DNP3ChannelListener> Create(const DNP3::OutStationTCP *o)
+	{
+		Logger::getLogger()->debug("DNP3ChannelListener::Create() called");
+		return std::make_shared<DNP3ChannelListener>(o);
+	}
+
+	DNP3ChannelListener(const DNP3::OutStationTCP *o)
+	{
+		m_outstation = (DNP3::OutStationTCP *)o;
+	}
+private:
+	DNP3::OutStationTCP	*m_outstation;
+};
+
+// Master application override class
+class DNP3MasterApplication : public IMasterApplication
+{
+public:
+	DNP3MasterApplication() {} // Emoty constructor
+	static std::shared_ptr<DNP3MasterApplication> Create() // Return default class
+	{
+		Logger::getLogger()->debug("DNP3MasterApplication::Create() called");
+		return std::make_shared<DNP3MasterApplication>();
+	}
+
+	// Pass IMaster pointer and OutStationTCP pointer
+	void AddMaster(std::shared_ptr<IMaster> mp, const DNP3::OutStationTCP *o)
+	{
+		m = mp;
+		m_outstation = (DNP3::OutStationTCP *)o;
+		Logger::getLogger()->debug("DNP3MasterApplication::AddMaster() called");
+	}
+
+   	// Set here methods overridden in DefaultMasterApplication (set to override final)
+	// opendnp3 library
+	// cpp/libs/src/asiodnp3/DefaultMasterApplication.cpp
+	//
+	// As in DefaultMasterApplication
+	virtual bool AssignClassDuringStartup() override final
+	{
+		return false;
+	}
+
+	// As in DefaultMasterApplication
+	virtual openpal::UTCTimestamp Now() override final
+	{
+		uint64_t time
+		= std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		return {time};
+	}
+
+	// Report master link change
+	virtual void OnStateChange(opendnp3::LinkStatus value) override
+	{
+		const char *s = opendnp3::LinkStatusToString(value);
+		Logger::getLogger()->debug("Master link state change: %s", s);
+	}
+
+	// Override OnKeepAliveFailure and close and open again connection to outstation
+	// This covers scenario of disconnected network cable or powering off the network switch
+	virtual void OnKeepAliveFailure() override
+	{
+		Logger::getLogger()->error("Master detected KeepAlive failure for " \
+					"outstation %s:%d id %d, " \
+					"restarting connection ...",
+					m_outstation->address.c_str(),
+					m_outstation->port,
+					m_outstation->linkId);
+
+		// Close connection to outstation
+		m->Disable();
+
+		// Open new connection to outstation
+		// If outstation is still down or not reachable
+		// the connection task will continue trying
+		m->Enable();
+	}
+private:
+	std::shared_ptr<IMaster> m;
+	DNP3::OutStationTCP	*m_outstation;
 };
 
 } // namespace asiodnp3

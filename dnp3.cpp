@@ -27,7 +27,7 @@
 #include <thread>
 
 #include "south_dnp3.h"
-#include "dnp3_logger.h"
+#include "dnp3_logger.h" // Include logging and application overrides
 
 using namespace std;
 using namespace asiodnp3;
@@ -58,7 +58,7 @@ bool DNP3::start()
 	// Set threads and console logging
 	asiodnp3::DNP3Manager* manager = 
 		new asiodnp3::DNP3Manager(nThreads,
-					  asiodnp3::Dnp3Logger::Create());
+					  asiodnp3::Dnp3Logger::Create(true)); // true for file an line reference in debug
 	m_manager = manager;
 
 	this->unlockConfig();
@@ -79,8 +79,8 @@ bool DNP3::start()
 				      "0.0.0.0",
 				      // wich port the remote endpoint is listening on
 				      outstation->port,
-				      // optional listener interface for monitoring the channel
-				      PrintingChannelListener::Create());
+				      // optional listener interface for monitoring the channel of outstation
+				      asiodnp3::DNP3ChannelListener::Create(outstation));
 
 		if (!channel)
 		{
@@ -115,23 +115,30 @@ bool DNP3::start()
 			return false;
 		}
 
+		// Create custom MasterApplication
+		auto ma = DNP3MasterApplication::Create();
+
 		// Create a master bound to a particular channel
 		std::shared_ptr<IMaster> master =
 				channel->AddMaster("master_" + to_string(masterId), // alias for logging
 				SOEHandle,  // IOEHandler (interface)
-				asiodnp3::DefaultMasterApplication::Create(), // Application (interface)
-				// static stack configuration
-				stackConfig);
+				ma, // Application (interface)
+				stackConfig); // static stack configuration
 
+		// Check
 		if (!master)
 		{
 			return false;
 		}
 
+		// Pass master and outstation to custom MasterApplication
+		ma->AddMaster(master, outstation);
+
 		// Do an integrity poll (Class 3/2/1/0) once per specified seconds
 		if (scanEnabled)
 		{
-			Logger::getLogger()->info("Outstation scan (Integrity Poll) is enabled");
+			Logger::getLogger()->info("Outstation id %d scan (Integrity Poll) is enabled",
+						outstation->linkId);
 
 			master->AddClassScan(ClassField::AllClasses(),
 					     TimeDuration::Seconds(scanInterval));
