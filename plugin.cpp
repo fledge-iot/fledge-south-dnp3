@@ -49,32 +49,39 @@ static const char *default_config = QUOTE({
 		"order" : "1"
 		},
 	"master_id" : {
-		"description" : "Master Link Id",
+		"description" : "Master Link ID",
 		"type" : "integer",
 		"default" : DEFAULT_MASTER_LINK_ID,
-		"displayName" : "Master link Id",
-		"order" : "2"
+		"displayName" : "Master link ID",
+		"order" : "2",
+		"maximum" : "65519",
+		"minimum" : "1"
 		},
 	"outstation_tcp_address" : {
 		"description" : "Outstation TCP/IP address",
 		"type" : "string",
 		"default" : DEFAULT_TCP_ADDR,
 		"displayName" : "Outstation address",
-		"order" : "3"
+		"order" : "3",
+		"mandatory": "true"
 		},
 	"outstation_tcp_port" : {
 		"description" : "Outstation TCP/IP port",
 		"type" : "integer",
 		"default" : DEFAULT_TCP_PORT,
 		"displayName" : "Outstation port",
-		"order" : "4"
+		"order" : "4",
+		"maximum" : "65000",
+		"minimum" : "1"
 		},
 	"outstation_id" : {
-		"description" : "Outstation Link Id",
+		"description" : "Outstation Link ID",
 		"type" : "integer",
 		"default" : DEFAULT_OUTSTATION_ID,
-		"displayName" : "Outstation link Id",
-		"order" : "5"
+		"displayName" : "Outstation link ID",
+		"order" : "5",
+		"maximum" : "65519",
+		"minimum" : "1"
 		},
 	"outstation_scan_enable" : {
 		"description" : "Enable outstation data scan (Integrity Poll for all Classes)",
@@ -88,14 +95,16 @@ static const char *default_config = QUOTE({
 		"type" : "integer",
 		"default" : DEFAULT_OUTSTATION_SCAN_INTERVAL,
 		"displayName" : "Scan interval",
-		"order" : "7"
+		"order" : "7",
+		"minimum" : "1"
 		},
 	"data_fetch_timeout" : {
 		"description" : "Timeout in seconds while fetching data",
 		"type" : "integer",
 		"default" : DEFAULT_APPLICATION_TIMEOUT,
 		"displayName" : "Network timeout",
-		"order" : "8"
+		"order" : "8",
+		"minimum" : "1"
 		}
 	});
 
