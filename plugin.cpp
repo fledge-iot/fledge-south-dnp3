@@ -46,17 +46,16 @@ static const char *default_config = QUOTE({
 		"type" : "string",
 		"default" : DEFAULT_ASSETNAME_PREFIX,
 		"displayName" : "Asset Name prefix",
-		"order" : "1",
-		"mandatory": "true"
+		"order" : "1"
 		},
 	"master_id" : {
-		"description" : "Master Link Id",
+		"description" : "Master Link ID",
 		"type" : "integer",
 		"default" : DEFAULT_MASTER_LINK_ID,
-		"displayName" : "Master link Id",
+		"displayName" : "Master link ID",
+		"order" : "2",
 		"maximum" : "65519",
-		"minimum" : "1",
-		"order" : "2"
+		"minimum" : "1"
 		},
 	"outstation_tcp_address" : {
 		"description" : "Outstation TCP/IP address",
@@ -76,10 +75,10 @@ static const char *default_config = QUOTE({
 		"minimum" : "1"
 		},
 	"outstation_id" : {
-		"description" : "Outstation Link Id",
+		"description" : "Outstation Link ID",
 		"type" : "integer",
 		"default" : DEFAULT_OUTSTATION_ID,
-		"displayName" : "Outstation link Id",
+		"displayName" : "Outstation link ID",
 		"order" : "5",
 		"maximum" : "65519",
 		"minimum" : "1"
@@ -116,7 +115,7 @@ static const char *default_config = QUOTE({
 		"displayName" : "Outstations",
 		"properties" : {
 			"linkid" : {
-					"description" : "The outstation link id",
+					"description" : "The outstation link ID",
 					"displayName" : "Link ID",
 					"type" : "integer",
 					"maximum" : "65519",
