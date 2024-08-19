@@ -50,10 +50,10 @@ static const char *default_config = QUOTE({
 		"mandatory": "true"
 		},
 	"master_id" : {
-		"description" : "Master Link Id",
+		"description" : "Master Link ID",
 		"type" : "integer",
 		"default" : DEFAULT_MASTER_LINK_ID,
-		"displayName" : "Master link Id",
+		"displayName" : "Master link ID",
 		"order" : "2",
 		"maximum" : "65519",
 		"minimum" : "1"
@@ -76,10 +76,10 @@ static const char *default_config = QUOTE({
 		"minimum" : "1"
 		},
 	"outstation_id" : {
-		"description" : "Outstation Link Id",
+		"description" : "Outstation Link ID",
 		"type" : "integer",
 		"default" : DEFAULT_OUTSTATION_ID,
-		"displayName" : "Outstation link Id",
+		"displayName" : "Outstation link ID",
 		"order" : "5",
 		"maximum" : "65519",
 		"minimum" : "1"
