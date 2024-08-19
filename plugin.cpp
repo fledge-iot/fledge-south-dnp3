@@ -46,8 +46,7 @@ static const char *default_config = QUOTE({
 		"type" : "string",
 		"default" : DEFAULT_ASSETNAME_PREFIX,
 		"displayName" : "Asset Name prefix",
-		"order" : "1",
-		"mandatory": "true"
+		"order" : "1"
 		},
 	"master_id" : {
 		"description" : "Master Link ID",
