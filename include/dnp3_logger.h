@@ -34,7 +34,22 @@ class Dnp3Logger final : public openpal::ILogHandler, private openpal::Uncopyabl
 			// Get log level from passd object
 			uint32_t logLevel = entry.filters.GetBitfield();
 
-			oss << entry.loggerid;
+			string label = entry.loggerid;
+			int index = label.find("_remote_");
+			if (index != string::npos)
+			{
+				int tmp = label.find_last_of('_');
+				if (tmp != string::npos &&
+				    (tmp+1 < label.length()))
+				{
+					string linkId = label.substr(tmp+1);
+					string sub_str = "Outstation id " + linkId;
+					label.replace(index, sub_str.length(), sub_str);
+					label.erase(0, index);
+				}
+			}
+
+			oss << label;
 
 			// Add file C info for debug/event and unknown levels
 			if (m_printLocation &&
@@ -42,11 +57,19 @@ class Dnp3Logger final : public openpal::ILogHandler, private openpal::Uncopyabl
 			     logLevel != flags::WARN &&
 			     logLevel != flags::INFO))
 			{
-			
 				oss << " - " << entry.location;
 			}
 
-			oss << " - " << entry.message;
+
+			string msg = entry.message;
+			string sub_str = "Connection errored or closed";
+			index = msg.find("End of file");
+			if (index != string::npos)
+			{
+				msg.replace(index, sub_str.length(), sub_str);
+			}
+
+			oss << " - " << msg;
 
 			switch (logLevel)
 			{
