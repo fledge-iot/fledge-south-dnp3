@@ -3,7 +3,7 @@
 /*
  * Fledge DNP3 class
  *
- * Copyright (c) 2019 Dianomic Systems
+ * Copyright (c) 2019-2024 Dianomic Systems
  *
  * Released under the Apache 2.0 Licence
  *
@@ -145,6 +145,16 @@ class DNP3
 			m_outstationScanInterval = val;
 		};
 
+		void	setAppLogLevel(uint32_t level)
+		{
+			m_appLogLevel = level;
+		};
+		uint32_t
+			getAppLogLevel()
+		{
+			return m_appLogLevel;
+		};
+
 	private:
 		std::string		m_serviceName;
 		std::string		m_asset;
@@ -157,14 +167,21 @@ class DNP3
 		void			(*m_ingest)(void *, Reading);
 		void			*m_data;
 		// vector of Outstations
-		// Note: only one is handled right now
 		std::vector<DNP3::OutStationTCP *>
 					m_outstations;
+		uint32_t		m_appLogLevel;
 };
 
+// Convert to string for most object types
 template<class T> std::string ValueToString(const T& meas)
 {
 	return std::to_string(meas.value);
+}
+
+// Convert to string for DoubleBitBinary
+template<class T> std::string ValueToStringDBB(const T& meas)
+{
+	return DoubleBitToString(meas.value);
 }
 
 using namespace opendnp3;
@@ -203,14 +220,20 @@ namespace asiodnp3
 			{
 				return this->dnp3DataCallback(info,values, "Analog");
 			};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<AnalogOutputStatus>>& values) override
+			{
+				return this->dnp3DataCallback(info,values, "AnalogOutput");
+			};
+			void Process(const HeaderInfo& info,
+				     const ICollection<Indexed<DoubleBitBinary>>& values) //override {};
+			{
+				return this->dnp3DataCallbackDBB(info,values, "DoubleBitBinary");
+			};
 
 			// We don't get data from these
 			void Process(const HeaderInfo& info,
-				     const ICollection<Indexed<DoubleBitBinary>>& values) override {};
-			void Process(const HeaderInfo& info,
 				     const ICollection<Indexed<FrozenCounter>>& values) override {};
-			void Process(const HeaderInfo& info,
-				     const ICollection<Indexed<AnalogOutputStatus>>& values) override {};
 			void Process(const HeaderInfo& info,
 				     const ICollection<Indexed<OctetString>>& values) override {};
 			void Process(const HeaderInfo& info,
@@ -234,10 +257,22 @@ namespace asiodnp3
 				dnp3DataCallback(const HeaderInfo& info,
 						 const ICollection<Indexed<T>>& values,
 						 const std::string& objectType);
+			// Callback for data receiving of DoubleBitBinary
+			// solicited and unsolicited messages
+			template<class T> void
+				dnp3DataCallbackDBB(const HeaderInfo& info,
+						 const ICollection<Indexed<T>>& values,
+						 const std::string& objectType);
 
 			// Process a data element from callback
 			// and ingest data into Fledge
 			template<class T> void dataElement(const opendnp3::HeaderInfo& info,
+							   const T& value,
+							   uint16_t index,
+							   const std::string& objectName);
+			// Process a data element from callback of DoubleBitBinary
+			// and ingest data into Fledge
+			template<class T> void dataElementDBB(const opendnp3::HeaderInfo& info,
 							   const T& value,
 							   uint16_t index,
 							   const std::string& objectName);
