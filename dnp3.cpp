@@ -144,7 +144,7 @@ bool DNP3::start()
   			}
 			else
 			{
-				Logger::getLogger()->info("Created TLC client for outstation Id %d: CA %s, cert %s, cert key %s",
+				Logger::getLogger()->info("Created TLS client for outstation Id %d: CA %s, cert %s, cert key %s",
 					  outstation->linkId,
 					  (usePeerCertificate + ".cert").c_str(),
 					  (useTLSCertificate + ".cert").c_str(),
