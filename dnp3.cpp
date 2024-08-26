@@ -64,7 +64,7 @@ bool DNP3::start()
 
 	// Get TLS enable flag
 	bool enableTLS = m_enable_tls;
-	// Get TLS certificates from certificate store
+	// Get global TLS certificates from certificate store
 	std::string peerCertificate = m_ca_cert;
 	std::string TLSCertificate = m_certs_pair;
 	std::string TLSCertificateKey = m_certs_pair;
@@ -101,10 +101,14 @@ bool DNP3::start()
 		}
 		else
 		{
-			// TLS certsificates: use global seting or per outstation config
+			std::string usePeerCertificate = peerCertificate ;
+			std::string useTLSCertificate = TLSCertificate;
+			std::string useTLSCertificateKey = TLSCertificate;
+			// TLS certsificates: use global seting or per outstation config ?
 			if (!outstation->TLSCAcertificate.empty() &&
 			    !outstation->TLSCAcertificate.empty())
 			{
+				// Use specific outstation certificates
 				string certs_dir;
 				if (getenv("FLEDGE_DATA") != NULL)
 				{
@@ -114,9 +118,9 @@ bool DNP3::start()
 				{
 					certs_dir = string(getRootDir()) + "/data/etc/certs/";
 				}
-				peerCertificate = certs_dir + outstation->TLSCAcertificate;
-				TLSCertificate = certs_dir + outstation->TLScertificate;
-				TLSCertificateKey = certs_dir + outstation->TLScertificate;
+				usePeerCertificate = certs_dir + outstation->TLSCAcertificate;
+				useTLSCertificate = certs_dir + outstation->TLScertificate;
+				useTLSCertificateKey = certs_dir + outstation->TLScertificate;
 			}
 			channel =
 				manager->AddTLSClient(m_serviceName + "_" + remoteLabel, // alias in log messages
@@ -127,9 +131,9 @@ bool DNP3::start()
 						// interface adapter on which to attempt the connection (any adapter)
 						"0.0.0.0",
 						// TLS certificates setup
-					        TLSConfig(peerCertificate + ".cert", // Peer certificate CA
-							TLSCertificate + ".cert",  // TLS public certificate
-							TLSCertificateKey + ".key"), // TLS certificate private key
+					        TLSConfig(usePeerCertificate + ".cert", // Peer certificate CA
+							useTLSCertificate + ".cert",  // TLS public certificate
+							useTLSCertificateKey + ".key"), // TLS certificate private key
 						// optional listener interface for monitoring the channel of outstation
 						asiodnp3::DNP3ChannelListener::Create(outstation),
 						ec);
@@ -142,9 +146,9 @@ bool DNP3::start()
 			{
 				Logger::getLogger()->info("Created TLC client for outstation Id %d: CA %s, cert %s, cert key %s",
 					  outstation->linkId,
-					  (peerCertificate + ".cert").c_str(),
-					  (TLSCertificate + ".cert").c_str(),
-					  (TLSCertificateKey + ".key").c_str());
+					  (usePeerCertificate + ".cert").c_str(),
+					  (useTLSCertificate + ".cert").c_str(),
+					  (useTLSCertificateKey + ".key").c_str());
 			}
 		}
 
