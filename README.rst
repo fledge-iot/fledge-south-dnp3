@@ -86,7 +86,7 @@ The branch name is release-2.x
   $ export OPENDNP3_LIB_DIR=`pwd`
   $ mkdir build
   $ cd build
-  $ cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON ..
+  $ cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON -DDNP3_TLS=ON ..
   $ make
 
 The opendnp3 library requires boost libraries that are not available in packaged form for the

@@ -89,7 +89,7 @@ endif()
 target_link_libraries(${PROJECT_NAME} -L${OPENDNP3_LIB_DIR}/build -lasiodnp3 -lopendnp3 -lasiopal -lopenpal)
 
 # Add additional libraries
-target_link_libraries(${PROJECT_NAME} -lpthread -ldl)
+target_link_libraries(${PROJECT_NAME} -lpthread -ldl -lssl -lcrypto)
 
 # Set the build version 
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)

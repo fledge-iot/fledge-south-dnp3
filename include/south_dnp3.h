@@ -52,6 +52,9 @@ class DNP3
 				std::string		address;
 				short unsigned int	port;
 				uint16_t		linkId;
+				bool			disableTLS;
+				std::string		TLSCAcertificate;
+				std::string		TLScertificate;
 		};
 
 	public:
@@ -170,6 +173,9 @@ class DNP3
 		std::vector<DNP3::OutStationTCP *>
 					m_outstations;
 		uint32_t		m_appLogLevel;
+		bool			m_enable_tls;
+		std::string		m_ca_cert; // CA or peer TLS certificate name: only public PEM certificate
+		std::string		m_certs_pair; // Master TLS certificate name: key and public PEM certs
 };
 
 // Convert to string for most object types
