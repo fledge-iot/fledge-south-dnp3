@@ -89,7 +89,7 @@ if [ ! -d "${directory}/opendnp3" ]; then
 	mkdir build
 	cd build
 	echo Building opendnp3 static library ...
-	cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON ..
+	cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON -DDNP3_TLS=ON ..
 	make
 	cd ..
 	echo Set the environment variable OPENDNP3_LIB_DIR to `pwd`
