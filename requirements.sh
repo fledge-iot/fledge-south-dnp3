@@ -75,8 +75,8 @@ if [ ! -d "${directory}/opendnp3" ]; then
 		# stick with release 2.3.0 of opendnp3
 		git checkout tags/2.3.0
 	else
-		# stick with release 2.2.0 of opendnp3
-		git checkout tags/2.2.0
+		# stick with release 2.3.0 of opendnp3
+		git checkout tags/2.3.0
 	fi
 	#sed -e "s/buffer = {0x00}/buffer = {{0x00}}/" < cpp/lib/include/opendnp3/app/OctetData.h \
 	#	> cpp/lib/include/opendnp3/app/OctetData.h.$$ && \
