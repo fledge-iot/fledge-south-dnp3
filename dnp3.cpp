@@ -109,15 +109,7 @@ bool DNP3::start()
 			    !outstation->TLSCAcertificate.empty())
 			{
 				// Use specific outstation certificates
-				string certs_dir;
-				if (getenv("FLEDGE_DATA") != NULL)
-				{
-					certs_dir = string(getDataDir()) + "/etc/certs/";
-				}
-				else
-				{
-					certs_dir = string(getRootDir()) + "/data/etc/certs/";
-				}
+				string certs_dir = getDataDir() + "/etc/certs/";
 				usePeerCertificate = certs_dir + outstation->TLSCAcertificate;
 				useTLSCertificate = certs_dir + outstation->TLScertificate;
 				useTLSCertificateKey = certs_dir + outstation->TLScertificate;
@@ -234,15 +226,7 @@ bool DNP3::start()
  */
 bool DNP3::configure(ConfigCategory* config)
 {
-	string certs_dir;
-	if (getenv("FLEDGE_DATA") != NULL)
-	{
-		certs_dir = string(getDataDir()) + "/etc/certs/";
-	}
-	else
-	{
-		certs_dir = string(getRootDir()) + "/data/etc/certs/";
-	}
+	string certs_dir = getDataDir() + "/etc/certs/";
 
 	this->lockConfig();
 
