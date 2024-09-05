@@ -91,6 +91,15 @@ if (NOT LIBOPENDP3)
 			"Please build opendnp3 and set the environment variable OPENDNP3_LIB_DIR to root of opendnp3 source tree")
 	return()
 endif()
+
+# Automatic check of TLS support in the library
+file(READ "${OPENDNP3_LIB_DIR}/build/CMakeFiles/opendnp3.dir/flags.make" TMPTXT)
+string(FIND "${TMPTXT}" "-DOPENDNP3_USE_TLS" matchres)
+if(${matchres} GREATER -1)
+        message(STATUS "TLS feature is enabled")
+        add_definitions(-DUSE_TLS)
+endif()
+
 # Add libopendnp3 and other static libraries
 target_link_libraries(${PROJECT_NAME} -L${OPENDNP3_LIB_DIR}/build -lasiodnp3 -lopendnp3 -lasiopal -lopenpal)
 
