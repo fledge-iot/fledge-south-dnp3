@@ -144,6 +144,8 @@ this default behaviour:
 - **FLEDGE_INCLUDE** sets the path to Fledge header files
 - **FLEDGE_LIB sets** the path to Fledge libraries
 - **FLEDGE_INSTALL** sets the installation path of Random plugin
+- **USE_TLS** sets the TLS plugin feature
+
 
 NOTE:
  - The **FLEDGE_INCLUDE** option should point to a location where all the Fledge 
@@ -179,3 +181,5 @@ Examples:
   $ cmake -DFLEDGE_INSTALL=/home/source/develop/Fledge ..
 
   $ cmake -DFLEDGE_INSTALL=/usr/local/fledge ..
+
+  $ cmake -DUSE_TLS=1 ..
