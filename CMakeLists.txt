@@ -31,6 +31,12 @@ set(PLUGIN_TYPE "south")
 # Add here all needed Fledge libraries as list
 set(NEEDED_FLEDGE_LIBS common-lib)
 
+set(USE_TLS "" CACHE INTERNAL "")
+if (USE_TLS)
+	message(STATUS "TLS feature is enabled")
+	add_definitions(-DUSE_TLS)
+endif()
+
 # Find source files
 file(GLOB SOURCES *.cpp)
 

@@ -136,12 +136,19 @@ static const char *default_config = QUOTE({
 					"default" : "20000",
 					"maximum" : "65000",
 					"minimum" : "1"
-				},
-				"disableTLS": {
-					"description" : "Disable TLS",
-					"displayName" : "Disable TLS",
-					"type" : "boolean",
-					"default" : "false"
+				}
+#ifdef USE_TLS
+				,
+				"TLS": {
+					"description" : "Outstation TLS setting",
+					"displayName" : "Outstation TLS setting",
+					"type": "enumeration",
+					"default" : "Use local default",
+					"options": [
+						"Use local default",
+						"Enable TLS",
+						"Disable TLS"
+					]
 				},
 				"TLSCAcertificate": {
 					"description" : "Set a specific TLS CA certificate name (PEM)",
@@ -155,6 +162,7 @@ static const char *default_config = QUOTE({
 					"type" : "string",
 					"default" : ""
 				}
+#endif
 			}
 		},
 		"appLogLevel": {
@@ -169,7 +177,9 @@ static const char *default_config = QUOTE({
 			"description": "DNP3 communication debug objects",
 			"displayName": "DNP3 debug objects",
 			"order" : "10"
-		},
+		}
+#ifdef USE_TLS
+		,
 		"enableTLS": {
 			"description" : "Enable TLS encryption in outstation to master communication",
 			"type" : "boolean",
@@ -179,7 +189,7 @@ static const char *default_config = QUOTE({
 			"group": "TLS"
 		},
 		"TLSCAcertificate": {
-			"description": "TLS CA Certificate file name (PEM)",
+			"description": "TLS CA Certificate used for all outstations unless overridden in the outstation list",
 			"type": "string",
 			"default": "dnp3ca",
 			"order": "12",
@@ -187,13 +197,14 @@ static const char *default_config = QUOTE({
 			"group": "TLS"
 		},
 		"TLScertificate": {
-			"description": "TLS Master Certificate file name (PEM)",
+			"description": "TLS Master Certificate used for all outstations unless overridden in the outstation list",
 			"type": "string",
 			"default": "master1",
 			"order": "13",
 			"displayName": "TLS Master Certificate Name",
 			"group": "TLS"
 		}
+#endif
 	});
 
 /**

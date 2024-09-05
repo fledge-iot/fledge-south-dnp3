@@ -81,8 +81,7 @@ bool DNP3::start()
 		std::shared_ptr<IChannel> channel;
 
 		// Use TLS:
-		// global TLS on must be set and outstation disable TLS must be false
-		bool useTLS = (enableTLS && !outstation->disableTLS);
+		bool useTLS = !outstation->disableTLS;
 		if (!useTLS)
 		{
 			channel =
@@ -99,6 +98,7 @@ bool DNP3::start()
 				 	     asiodnp3::DNP3ChannelListener::Create(outstation));
 		
 		}
+#ifdef USE_TLS
 		else
 		{
 			std::string usePeerCertificate = peerCertificate ;
@@ -143,7 +143,7 @@ bool DNP3::start()
 					  (useTLSCertificateKey + ".key").c_str());
 			}
 		}
-
+#endif
 		if (!channel)
 		{
 			return false;
@@ -317,10 +317,20 @@ bool DNP3::configure(ConfigCategory* config)
 				{
 					outstation->linkId = (uint16_t)atoi(value.c_str());
 				}
-				if (key == "disableTLS")
+				if (key == "TLS")
 				{
-					outstation->disableTLS = value.compare("true") == 0 ||
-								value.compare("True") == 0;
+					if (value == "Disable TLS")
+					{
+						outstation->disableTLS = true;
+					}
+					if (value == "Enable TLS")
+					{
+						outstation->disableTLS = false;
+					}
+					if (value == "Use local default")
+					{
+						outstation->disableTLS = !m_enable_tls;
+					}
 				}
 				if (key == "TLSCAcertificate")
 				{
@@ -348,6 +358,8 @@ bool DNP3::configure(ConfigCategory* config)
 	if (oneOutstation)
 	{
 		DNP3::OutStationTCP *outstation = new DNP3::OutStationTCP();
+		// One outstation: use global TLS enable flag
+		outstation->disableTLS = !m_enable_tls;
 		if (config->itemExists("outstation_id"))
 		{
 			// Overrides link id
