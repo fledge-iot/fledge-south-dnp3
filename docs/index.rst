@@ -25,7 +25,7 @@ The *fledge-south-dnp3* allows Fledge to act as a DNP3 master and gather data fr
 
   - **Network timeout**: Timeout for fetching data from the Out Station expressed in seconds.
 
-  - **DNP3 debug objects **: DNP3 communication and data objects logging. Detailed informations require plugin log level set to 'info' or 'debug'.
+  - **DNP3 debug objects**: DNP3 communication and data objects logging. Detailed informations require plugin log level set to 'info' or 'debug'.
 
 
 DNP3 Out Station Testing
