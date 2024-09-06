@@ -1,5 +1,6 @@
 .. |dnp3| image:: images/dnp3_1.jpg
 .. |dnp3_2| image:: images/dnp3_2.jpg
+.. |dnp3_3| image:: images/dnp3_3.jpg
 
 DNP3 Master Plugin
 ==================
@@ -31,6 +32,13 @@ The *fledge-south-dnp3* allows Fledge to act as a DNP3 master and gather data fr
 +----------+
 | |dnp3_2| |
 +----------+
+
+  - **Outstations tab**: The Outstations list for multiple outstations connection. If an entry is added then the current outstation settinga Outstation addres, Outstation port and *Outstation link Id are ignored.
+
++----------+
+| |dnp3_3| |
++----------+
+
 
 DNP3 Out Station Testing
 ------------------------
