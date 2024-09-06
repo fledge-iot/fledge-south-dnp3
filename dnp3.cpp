@@ -77,17 +77,18 @@ bool DNP3::start()
 		string remoteLabel = "remote_" + to_string(outstation->linkId);
 		std::error_code ec;
 
-		// Create TCP channel for outstation
-		std::shared_ptr<IChannel> channel;
+		// Connection retry timings: staring with 20 seconds, then up to 5 minutes
+		auto retry = ChannelRetry(TimeDuration::Seconds(20), TimeDuration::Minutes(5));
 
-		// Use TLS:
+		// Create TCP channel for outstation
+		// Use TLS ?:
 		bool useTLS = !outstation->disableTLS;
 		if (!useTLS)
 		{
 			channel =
 				manager->AddTCPClient(m_serviceName + "_" + remoteLabel, // alias in log messages
 					      logLevels, // filter what gets logged
-					      ChannelRetry::Default(), // how connections will be retried
+					      retry, // how connections will be retried
 					      // host names or IP address of remote endpoint
 					      outstation->address, 
 					      // interface adapter on which to attempt the connection (any adapter)
@@ -117,7 +118,7 @@ bool DNP3::start()
 			channel =
 				manager->AddTLSClient(m_serviceName + "_" + remoteLabel, // alias in log messages
 						logLevels, // filter what gets logged
-						ChannelRetry::Default(), // how connections will be retried
+						retry, // how connections will be retried
 						// host name or IP address of remote endpoint and port
 						{IPEndpoint(outstation->address, outstation->port)},
 						// interface adapter on which to attempt the connection (any adapter)
