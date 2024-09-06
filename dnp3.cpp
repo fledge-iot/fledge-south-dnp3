@@ -68,11 +68,14 @@ bool DNP3::start()
 	{
 		string remoteLabel = "remote_" + to_string(outstation->linkId);
 
+		// Connection retry timings: staring with 20 seconds, then up to 5 minutes
+		auto retry = ChannelRetry(TimeDuration::Seconds(20), TimeDuration::Minutes(5));
+
 		// Create TCP channel for outstation
 		std::shared_ptr<IChannel> channel =
 			manager->AddTCPClient(m_serviceName + "_" + remoteLabel, // alias in log messages
 				      logLevels, // filter what gets logged
-				      ChannelRetry::Default(), // how connections will be retried
+				      auto, // how connections will be retried
 				      // host names or IP address of remote endpoint
 				      outstation->address, 
 				      // interface adapter on which to attempt the connection (any adapter)
