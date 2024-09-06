@@ -23,6 +23,7 @@ The *fledge-south-dnp3* allows Fledge to act as a DNP3 master and gather data fr
 
 .. note::
 
+Note:
 The Outstation address, port and link Id will be ignored if the list of out stations has one or more entries in it. The global outstation definition is only retained for backward compatibility.
   
   - **Data scan**: Enable or disable the scanning of all objects and values in the Out Station.  This is the Integrity Poll for all Classes.
