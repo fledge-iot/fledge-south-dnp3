@@ -110,6 +110,21 @@ class DNP3
 		// Add outstation
 		void	addOutStationTCP(OutStationTCP *outstation)
 		{
+			for (OutStationTCP *o : m_outstations)
+			{
+				if (o->linkId == outstation->linkId &&
+				    o->port == outstation->port &&
+				    o->address == outstation->address)
+				{
+					Logger::getLogger()->error("Skip outstation entry in the list as an outstation " \
+							"already exists with address %s, port %d and linkId %d",
+							outstation->address.c_str(),
+							outstation->port,
+							outstation->linkId);
+					return;
+				}
+			}
+
 			m_outstations.push_back(outstation);	
 		};
 
