@@ -63,7 +63,7 @@ bool DNP3::start()
 
 	this->unlockConfig();
 
-	Logger::getLogger()->info("Fount %d DNP3 TCP outstation configured", m_outstations.size());
+	Logger::getLogger()->info("Found %d DNP3 TCP outstation configured", m_outstations.size());
 
 	// Iterate outstation array
 	for (OutStationTCP *outstation : m_outstations)
