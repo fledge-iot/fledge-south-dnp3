@@ -20,6 +20,8 @@ The *fledge-south-dnp3* allows Fledge to act as a DNP3 master and gather data fr
   - **Outstation port**: The post on the Out Station to which the connection is established.
 
   - **Outstation link Id**: The Out Station link id.
+.. note::
+The Outstation address, port and link Id will be ignored if the list of out stations has one or more entries in it. The global outstation definition is only retained for backward compatibility.
   
   - **Data scan**: Enable or disable the scanning of all objects and values in the Out Station.  This is the Integrity Poll for all Classes.
 
@@ -27,13 +29,13 @@ The *fledge-south-dnp3* allows Fledge to act as a DNP3 master and gather data fr
 
   - **Network timeout**: Timeout for fetching data from the Out Station expressed in seconds.
 
-  - **DNP3 debug objects**: DNP3 communication and data objects logging. Detailed informations require plugin log level set to 'info' or 'debug'.
+  - **DNP3 debug objects**: DNP3 communication and data objects logging. In order to have these messages logged the service log level must be set to 'info' or 'debug'.
 
 +----------+
 | |dnp3_2| |
 +----------+
 
-  - **Outstations tab**: The outstations list for multiple connection. If an entry is added then the current outstation settings 'Outstation addres', 'Outstation port' and 'Outstation link Id' are ignored.
+  - **Outstations tab**: A list of outstations. Each item in the list consists of three properties, the Outstation address, port and link id. If this list is populated with one or more outstations then the global 'Outstation address', 'Outstation port' and 'Outstation link Id' will be ignored.
 
 +----------+
 | |dnp3_3| |
