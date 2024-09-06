@@ -75,7 +75,7 @@ bool DNP3::start()
 		std::shared_ptr<IChannel> channel =
 			manager->AddTCPClient(m_serviceName + "_" + remoteLabel, // alias in log messages
 				      logLevels, // filter what gets logged
-				      auto, // how connections will be retried
+				      retry, // how connections will be retried
 				      // host names or IP address of remote endpoint
 				      outstation->address, 
 				      // interface adapter on which to attempt the connection (any adapter)
