@@ -33,7 +33,7 @@ The *fledge-south-dnp3* allows Fledge to act as a DNP3 master and gather data fr
 | |dnp3_2| |
 +----------+
 
-  - **Outstations tab**: The Outstations list for multiple outstations connection. If an entry is added then the current outstation settinga Outstation addres, Outstation port and *Outstation link Id are ignored.
+  - **Outstations tab**: The outstations list for multiple connection. If an entry is added then the current outstation settinga 'Outstation addres', 'Outstation port' and 'Outstation link Id' are ignored.
 
 +----------+
 | |dnp3_3| |
