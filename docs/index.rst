@@ -1,4 +1,4 @@
-.. |dnp3| image:: images/dnp3.jpg
+.. |dnp3| image:: images/dnp3_1.jpg
 
 DNP3 Master Plugin
 ==================
