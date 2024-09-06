@@ -28,9 +28,9 @@ The *fledge-south-dnp3* allows Fledge to act as a DNP3 master and gather data fr
 
   - **DNP3 debug objects**: DNP3 communication and data objects logging. Detailed informations require plugin log level set to 'info' or 'debug'.
 
-+--------+
++----------+
 | |dnp3_2| |
-+--------+
++----------+
 
 DNP3 Out Station Testing
 ------------------------
