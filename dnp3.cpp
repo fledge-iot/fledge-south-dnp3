@@ -83,6 +83,8 @@ bool DNP3::start()
 		auto retry = ChannelRetry(TimeDuration::Seconds(20), TimeDuration::Minutes(5));
 
 		// Create TCP channel for outstation
+		std::shared_ptr<IChannel> channel;
+
 		// Use TLS ?:
 		bool useTLS = !outstation->disableTLS;
 		if (!useTLS)
