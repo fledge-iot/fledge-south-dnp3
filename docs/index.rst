@@ -21,12 +21,10 @@ The *fledge-south-dnp3* allows Fledge to act as a DNP3 master and gather data fr
 
   - **Outstation link Id**: The Out Station link id.
 
-.. note::
+  .. note::
 
-Note:
+    The Outstation address, port and link Id will be ignored if the list of out stations has one or more entries in it. The global outstation definition is only retained for backward compatibility.
 
-The Outstation address, port and link Id will be ignored if the list of out stations has one or more entries in it. The global outstation definition is only retained for backward compatibility.
-  
   - **Data scan**: Enable or disable the scanning of all objects and values in the Out Station.  This is the Integrity Poll for all Classes.
 
   - **Scan interval**: The interval between data scans of the Out Station.
@@ -49,7 +47,7 @@ The Outstation address, port and link Id will be ignored if the list of out stat
 DNP3 Out Station Testing
 ------------------------
 
-The opdendnp3 package contains a demo Out Station that can be used for test purposes. After building the opendnp3 package on your machine run the demo program as follows;
+The opendnp3 package contains a demo Out Station that can be used for test purposes. After building the opendnp3 package on your machine run the demo program as follows;
 
 .. code-block:: console
 
