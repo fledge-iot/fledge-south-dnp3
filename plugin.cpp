@@ -194,7 +194,8 @@ static const char *default_config = QUOTE({
 			"default": "dnp3ca",
 			"order": "12",
 			"displayName": "TLS CA Certificate Name",
-			"group": "TLS"
+			"group": "TLS",
+			"validity" : "enableTLS == \"true\""
 		},
 		"TLScertificate": {
 			"description": "TLS Master Certificate used for all outstations unless overridden in the outstation list",
@@ -202,7 +203,8 @@ static const char *default_config = QUOTE({
 			"default": "master1",
 			"order": "13",
 			"displayName": "TLS Master Certificate Name",
-			"group": "TLS"
+			"group": "TLS",
+			"validity" : "enableTLS == \"true\""
 		}
 #endif
 	});
