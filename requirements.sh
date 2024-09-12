@@ -66,6 +66,7 @@ else
 fi
 
 if [ ! -d "${directory}/opendnp3" ]; then
+	useTLS=0
 	cd $directory
 	echo "Fetching Open DNP3 library 'release' in ${directory} ..."
 	git clone --recursive -b release https://github.com/dnp3/opendnp3.git
@@ -74,8 +75,12 @@ if [ ! -d "${directory}/opendnp3" ]; then
 	if [[ ${OS_NAME} == *"Ubuntu"* && ${OS_VERSION} == *"20"* ]]; then
 		# stick with release 2.3.0 of opendnp3
 		git checkout tags/2.3.0
+		# Set TLS flag
+		useTLS=1
 	else
+		# Ubuntu 18
 		# stick with release 2.2.0 of opendnp3
+		# TLS in not supported
 		git checkout tags/2.2.0
 	fi
 	#sed -e "s/buffer = {0x00}/buffer = {{0x00}}/" < cpp/lib/include/opendnp3/app/OctetData.h \
@@ -89,7 +94,11 @@ if [ ! -d "${directory}/opendnp3" ]; then
 	mkdir build
 	cd build
 	echo Building opendnp3 static library ...
-	cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON ..
+	if [ ${useTLS} -eq 1 ]; then
+		cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON -DDNP3_TLS=ON ..
+	else
+		cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON ..
+	fi
 	make
 	cd ..
 	echo Set the environment variable OPENDNP3_LIB_DIR to `pwd`

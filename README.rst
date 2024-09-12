@@ -86,14 +86,23 @@ The branch name is release-2.x
   $ export OPENDNP3_LIB_DIR=`pwd`
   $ mkdir build
   $ cd build
-  $ cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON ..
+
+  # In Ubuntu 20 TLS feature can be compiled in
+  $ cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON -DDNP3_TLS=ON ..
+
+  # In Ubuntu 18 TLS support can not be added
+  cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON ..
+
   $ make
 
 The opendnp3 library requires boost libraries that are not available in packaged form for the
 Raspbery Pi. Therefore it can not be built for the Raspbery Pi without first building these boost
 libraries.
 
+Note: TLS is not supported in Ubuntu 18
+
 Note: cmake 3.11 is required in order to build the opendnp3
+
 
 Alternatively run the script requirements.sh to automate this and place a copy of the opendnp3
 project in your home directory.
@@ -135,6 +144,8 @@ this default behaviour:
 - **FLEDGE_INCLUDE** sets the path to Fledge header files
 - **FLEDGE_LIB sets** the path to Fledge libraries
 - **FLEDGE_INSTALL** sets the installation path of Random plugin
+- **USE_TLS** sets the TLS plugin feature
+
 
 NOTE:
  - The **FLEDGE_INCLUDE** option should point to a location where all the Fledge 
@@ -170,3 +181,5 @@ Examples:
   $ cmake -DFLEDGE_INSTALL=/home/source/develop/Fledge ..
 
   $ cmake -DFLEDGE_INSTALL=/usr/local/fledge ..
+
+  $ cmake -DUSE_TLS=1 ..

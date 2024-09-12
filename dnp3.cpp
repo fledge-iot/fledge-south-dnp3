@@ -26,6 +26,7 @@
 #include <iostream>
 #include <thread>
 
+#include "utils.h"
 #include "south_dnp3.h"
 #include "dnp3_logger.h" // Include logging and application overrides
 
@@ -61,6 +62,13 @@ bool DNP3::start()
 					  asiodnp3::Dnp3Logger::Create(true)); // true for file an line reference in debug
 	m_manager = manager;
 
+	// Get TLS enable flag
+	bool enableTLS = m_enable_tls;
+	// Get global TLS certificates from certificate store
+	std::string peerCertificate = m_ca_cert;
+	std::string TLSCertificate = m_certs_pair;
+	std::string TLSCertificateKey = m_certs_pair;
+
 	this->unlockConfig();
 
 	Logger::getLogger()->info("Found %d DNP3 TCP outstation configured", m_outstations.size());
@@ -69,33 +77,88 @@ bool DNP3::start()
 	for (OutStationTCP *outstation : m_outstations)
 	{
 		string remoteLabel = "remote_" + to_string(outstation->linkId);
+		std::error_code ec;
 
 		// Connection retry timings: staring with 20 seconds, then up to 5 minutes
 		auto retry = ChannelRetry(TimeDuration::Seconds(20), TimeDuration::Minutes(5));
 
 		// Create TCP channel for outstation
-		std::shared_ptr<IChannel> channel =
-			manager->AddTCPClient(m_serviceName + "_" + remoteLabel, // alias in log messages
-				      logLevels, // filter what gets logged
-				      retry, // how connections will be retried
-				      // host names or IP address of remote endpoint
-				      outstation->address, 
-				      // interface adapter on which to attempt the connection (any adapter)
-				      "0.0.0.0",
-				      // wich port the remote endpoint is listening on
-				      outstation->port,
-				      // optional listener interface for monitoring the channel of outstation
-				      asiodnp3::DNP3ChannelListener::Create(outstation));
+		std::shared_ptr<IChannel> channel;
 
+		// Use TLS ?:
+		bool useTLS = !outstation->disableTLS;
+		if (!useTLS)
+		{
+			channel =
+				manager->AddTCPClient(m_serviceName + "_" + remoteLabel, // alias in log messages
+					      logLevels, // filter what gets logged
+					      retry, // how connections will be retried
+					      // host names or IP address of remote endpoint
+					      outstation->address, 
+					      // interface adapter on which to attempt the connection (any adapter)
+					      "0.0.0.0",
+					      // wich port the remote endpoint is listening on
+					      outstation->port,
+					      // optional listener interface for monitoring the channel of outstation
+				 	     asiodnp3::DNP3ChannelListener::Create(outstation));
+		
+		}
+#ifdef USE_TLS
+		else
+		{
+			std::string usePeerCertificate = peerCertificate ;
+			std::string useTLSCertificate = TLSCertificate;
+			std::string useTLSCertificateKey = TLSCertificate;
+			// TLS certsificates: use global seting or per outstation config ?
+			if (!outstation->TLSCAcertificate.empty() &&
+			    !outstation->TLSCAcertificate.empty())
+			{
+				// Use specific outstation certificates
+				string certs_dir = getDataDir() + "/etc/certs/";
+				usePeerCertificate = certs_dir + outstation->TLSCAcertificate;
+				useTLSCertificate = certs_dir + outstation->TLScertificate;
+				useTLSCertificateKey = certs_dir + outstation->TLScertificate;
+			}
+			channel =
+				manager->AddTLSClient(m_serviceName + "_" + remoteLabel, // alias in log messages
+						logLevels, // filter what gets logged
+						retry, // how connections will be retried
+						// host name or IP address of remote endpoint and port
+						{IPEndpoint(outstation->address, outstation->port)},
+						// interface adapter on which to attempt the connection (any adapter)
+						"0.0.0.0",
+						// TLS certificates setup
+					        TLSConfig(usePeerCertificate + ".cert", // Peer certificate CA
+							useTLSCertificate + ".cert",  // TLS public certificate
+							useTLSCertificateKey + ".key"), // TLS certificate private key
+						// optional listener interface for monitoring the channel of outstation
+						asiodnp3::DNP3ChannelListener::Create(outstation),
+						ec);
+			if (ec)
+  			{
+				Logger::getLogger()->error("Unable to create tls client: %s", ec.message().c_str());
+  				return false;
+  			}
+			else
+			{
+				Logger::getLogger()->info("Created TLS client for outstation Id %d: CA %s, cert %s, cert key %s",
+					  outstation->linkId,
+					  (usePeerCertificate + ".cert").c_str(),
+					  (useTLSCertificate + ".cert").c_str(),
+					  (useTLSCertificateKey + ".key").c_str());
+			}
+		}
+#endif
 		if (!channel)
 		{
 			return false;
 		}
 
-		Logger::getLogger()->info("configured DNP3 TCP outstation is: %s:%d, Link Id %d",
+		Logger::getLogger()->info("configured DNP3 TCP outstation is: %s:%d, Link Id %d, TLS is %s ",
 					  outstation->address.c_str(),
 					  outstation->port,
-					  outstation->linkId);
+					  outstation->linkId,
+					  useTLS ? "true" : "false");
 
 		// This object contains static configuration for the master, and transport/link layers
 		MasterStackConfig stackConfig;
@@ -168,8 +231,30 @@ bool DNP3::start()
  */
 bool DNP3::configure(ConfigCategory* config)
 {
+	string certs_dir = getDataDir() + "/etc/certs/";
+
 	this->lockConfig();
 
+	m_enable_tls = config->itemExists("enableTLS") &&
+			 (config->getValue("enableTLS").compare("true") == 0 ||
+			  config->getValue("enableTLS").compare("True") == 0);
+	if (m_enable_tls)
+	{
+		if (config->itemExists("TLSCAcertificate") &&
+		    config->itemExists("TLScertificate"))
+		{
+			string ca_cert = config->getValue("TLSCAcertificate");
+			string certs_pair = config->getValue("TLScertificate");
+			if (ca_cert.empty() ||
+			    certs_pair.empty())
+			{
+                                Logger::getLogger()->error("TLS is enabled but all certificates names are not set");
+				return false;
+			}
+			m_ca_cert = certs_dir + ca_cert;
+			m_certs_pair = certs_dir + certs_pair;
+		}
+	}
 	auto it = m_outstations.begin();
 	while (it != m_outstations.end())
 	{
@@ -237,6 +322,29 @@ bool DNP3::configure(ConfigCategory* config)
 				{
 					outstation->linkId = (uint16_t)atoi(value.c_str());
 				}
+				if (key == "TLS")
+				{
+					if (value == "Disable TLS")
+					{
+						outstation->disableTLS = true;
+					}
+					if (value == "Enable TLS")
+					{
+						outstation->disableTLS = false;
+					}
+					if (value == "Use local default")
+					{
+						outstation->disableTLS = !m_enable_tls;
+					}
+				}
+				if (key == "TLSCAcertificate")
+				{
+					outstation->TLSCAcertificate = value;
+				}
+				if (key == "TLScertificate")
+				{
+					outstation->TLScertificate = value;
+				}
                         }
 
 			// Add this outstation to the array
@@ -255,6 +363,8 @@ bool DNP3::configure(ConfigCategory* config)
 	if (oneOutstation)
 	{
 		DNP3::OutStationTCP *outstation = new DNP3::OutStationTCP();
+		// One outstation: use global TLS enable flag
+		outstation->disableTLS = !m_enable_tls;
 		if (config->itemExists("outstation_id"))
 		{
 			// Overrides link id

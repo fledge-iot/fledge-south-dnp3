@@ -114,22 +114,22 @@ static const char *default_config = QUOTE({
 		"order" : "9",
 		"displayName" : "Outstations",
 		"properties" : {
-			"linkid" : {
+				"linkid" : {
 					"description" : "The outstation link ID",
 					"displayName" : "Link ID",
 					"type" : "integer",
 					"maximum" : "65519",
 					"minimum" : "1",
 					"default" : "10"
-			},
-			"address" : {
+				},
+				"address" : {
 					"description" : "The outstation TCP address or name ",
 					"displayName" : "TCP Address",
 					"type" : "string",
 					"default" : "127.0.0.1",
 					"mandatory": "true"
 				},
-			"port" : {
+				"port" : {
 					"description" : "The outstation TCP port",
 					"displayName" : "TCP Port",
 					"type" : "integer",
@@ -137,6 +137,32 @@ static const char *default_config = QUOTE({
 					"maximum" : "65000",
 					"minimum" : "1"
 				}
+#ifdef USE_TLS
+				,
+				"TLS": {
+					"description" : "Outstation TLS setting",
+					"displayName" : "Outstation TLS setting",
+					"type": "enumeration",
+					"default" : "Use local default",
+					"options": [
+						"Use local default",
+						"Enable TLS",
+						"Disable TLS"
+					]
+				},
+				"TLSCAcertificate": {
+					"description" : "Set a specific TLS CA certificate name (PEM)",
+					"displayName" : "Specific TLS CA certificate",
+					"type" : "string",
+					"default" : ""
+				},
+				"TLScertificate": {
+					"description" : "Set a specific TLS master certificate (PEM)",
+					"displayName" : "Specific TLS master certificate",
+					"type" : "string",
+					"default" : ""
+				}
+#endif
 			}
 		},
 		"appLogLevel": {
@@ -152,6 +178,35 @@ static const char *default_config = QUOTE({
 			"displayName": "DNP3 debug objects",
 			"order" : "10"
 		}
+#ifdef USE_TLS
+		,
+		"enableTLS": {
+			"description" : "Enable TLS encryption in outstation to master communication",
+			"type" : "boolean",
+			"default" : "false",
+			"displayName" : "Enable TLS",
+			"order" : "11",
+			"group": "TLS"
+		},
+		"TLSCAcertificate": {
+			"description": "TLS CA Certificate used for all outstations unless overridden in the outstation list",
+			"type": "string",
+			"default": "dnp3ca",
+			"order": "12",
+			"displayName": "TLS CA Certificate Name",
+			"group": "TLS",
+			"validity" : "enableTLS == \"true\""
+		},
+		"TLScertificate": {
+			"description": "TLS Master Certificate used for all outstations unless overridden in the outstation list",
+			"type": "string",
+			"default": "master1",
+			"order": "13",
+			"displayName": "TLS Master Certificate Name",
+			"group": "TLS",
+			"validity" : "enableTLS == \"true\""
+		}
+#endif
 	});
 
 /**
