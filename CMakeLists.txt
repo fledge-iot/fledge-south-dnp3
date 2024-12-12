@@ -68,12 +68,19 @@ include_directories(${FLEDGE_INCLUDE_DIRS})
 
 # Add other include paths
 # We assume the 'freeopcua' header files are available here: 
-if (NOT EXISTS "${OPENDNP3_LIB_DIR}/cpp/libs/include")
-	message(FATAL_ERROR "OPENDNP3_LIB_DIR ${OPENDNP3_LIB_DIR}/cpp/libs/include \n"
-		"does not appear to be pointing at a valid OPENDNP3_LIB_DIR source tree")
-	return()
+# Set the base directory where the 'lib' or 'libs' directories should be located
+set(LIBRARY_PATH "${OPENDNP3_LIB_DIR}/cpp")
+
+# Check if the 'libs' directory exists and assign it to a variable if it does
+if(EXISTS "${LIBRARY_PATH}/libs")
+    set(EXISTING_LIB_PATH "${LIBRARY_PATH}/libs")
+elseif(EXISTS "${LIBRARY_PATH}/lib")
+    set(EXISTING_LIB_PATH "${LIBRARY_PATH}/lib")
+else()
+    message(FATAL_ERROR "Neither 'libs' nor 'lib' directory exists under ${LIBRARY_PATH}. Please check your OPENDNP3_LIB_DIR path.")
 endif()
-include_directories(${OPENDNP3_LIB_DIR}/cpp/libs/include)
+include_directories(${EXISTING_LIB_PATH}/include)
+
 
 # Add Fledge lib path
 link_directories(${FLEDGE_LIB_DIRS})
