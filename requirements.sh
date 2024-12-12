@@ -72,7 +72,7 @@ if [ ! -d "${directory}/opendnp3" ]; then
 	git clone --recursive -b release https://github.com/dnp3/opendnp3.git
 	cd opendnp3
 	# Until we hve a newer libasio on all the platforms we support we will
-	if [[ ${OS_NAME} == *"Ubuntu"* && ${OS_VERSION} == *"20"* ]]; then
+	if [[ ${OS_NAME} == *"Ubuntu"* && ${OS_VERSION} == *"2"* ]]; then
 		# stick with release 2.3.0 of opendnp3
 		git checkout tags/2.3.0
 		# Set TLS flag
