@@ -74,7 +74,7 @@ if [ ! -d "${directory}/opendnp3" ]; then
 	# Until we hve a newer libasio on all the platforms we support we will
 	if [[ ${OS_NAME} == *"Ubuntu"* && ${OS_VERSION} == *"2"* ]]; then
 		# stick with release 2.3.0 of opendnp3
-		git checkout tags/2.3.0
+		# git checkout tags/2.3.0 # Use release for gcc version 11+
 		# Set TLS flag
 		useTLS=1
 	else
