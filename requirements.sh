@@ -77,7 +77,7 @@ if [ ! -d "${directory}/opendnp3" ]; then
 		git checkout tags/2.3.0
 		# Set TLS flag
 		useTLS=1
-        if [[ ${OS_NAME} == *"Ubuntu"* && ( ${OS_VERSION} == "22."* || ${OS_VERSION} == "24."* ) ]]; then
+        elif [[ ${OS_NAME} == *"Ubuntu"* && ( ${OS_VERSION} == "22."* || ${OS_VERSION} == "24."* ) ]]; then
 	        # Set TLS flag
 		useTLS=1
 	else
