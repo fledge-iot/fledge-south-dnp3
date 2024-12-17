@@ -107,8 +107,7 @@ if [ ! -d "${directory}/opendnp3" ]; then
 	cd build
 	echo Building opendnp3 static library ...
 	if [ ${useTLS} -eq 1 ]; then
-		cmake -DDNP3_STATIC_LIBS=ON -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON -DDNP3_TLS=ON .. 
-  		#For DNP3_STATIC_LIBS see https://github.com/dnp3/opendnp3/blob/release/CMakeLists.txt#L70
+		cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON -DDNP3_TLS=ON .. 
 	else
 		cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON ..
 	fi
