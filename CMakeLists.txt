@@ -68,7 +68,6 @@ include_directories(${FLEDGE_INCLUDE_DIRS})
 
 # Add other include paths
 # We assume the 'freeopcua' header files are available here: 
-# Set the base directory where the 'lib' or 'libs' directories should be located
 if (NOT EXISTS "${OPENDNP3_LIB_DIR}/cpp/libs/include")
 	message(FATAL_ERROR "OPENDNP3_LIB_DIR ${OPENDNP3_LIB_DIR}/cpp/libs/include \n"
 		"does not appear to be pointing at a valid OPENDNP3_LIB_DIR source tree")
