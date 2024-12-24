@@ -49,6 +49,12 @@ elif apt --version 2>/dev/null; then
         wget -O /tmp/libasio-dev_1.10.8-1_all.deb  http://ftp.osuosl.org/pub/ubuntu/pool/universe/a/asio/libasio-dev_1.10.8-1_all.deb
         sudo apt install -y /tmp/libasio-dev_1.10.8-1_all.deb
         rm /tmp/libasio-dev_1.10.8-1_all.deb
+	elif [[ ${OS_NAME} == *"Ubuntu"* && ( ${OS_VERSION} == "22."* || ${OS_VERSION} == "24."* ) ]]; then
+		sudo apt remove -y libasio-dev
+		sudo apt autoremove -y
+		wget -O /tmp/libasio-dev_1.12.2-1_all.deb  http://ftp.osuosl.org/pub/ubuntu/pool/universe/a/asio/libasio-dev_1.12.2-1_all.deb
+		sudo apt install -y /tmp/libasio-dev_1.12.2-1_all.deb
+		rm /tmp/libasio-dev_1.12.2-1_all.deb
     else
         sudo apt install -y libasio-dev
     fi
@@ -72,17 +78,23 @@ if [ ! -d "${directory}/opendnp3" ]; then
 	git clone --recursive -b release https://github.com/dnp3/opendnp3.git
 	cd opendnp3
 	# Until we hve a newer libasio on all the platforms we support we will
-	if [[ ${OS_NAME} == *"Ubuntu"* && ${OS_VERSION} == *"20"* ]]; then
+	if [[ ${OS_NAME} == *"Ubuntu"* && ${OS_VERSION} == *"20."* ]]; then
 		# stick with release 2.3.0 of opendnp3
 		git checkout tags/2.3.0
 		# Set TLS flag
 		useTLS=1
+	elif [[ ${OS_NAME} == *"Ubuntu"* && ( ${OS_VERSION} == "22."* || ${OS_VERSION} == "24."* ) ]]; then
+			# Set TLS flag
+			useTLS=1
+			git checkout tags/2.3.0
+			sed -i '1i #include <limits>' cpp/libs/src/opendnp3/master/TypedCommandHeader.h
 	else
-		# Ubuntu 18
+		# Ubuntu 18.04 & others
 		# stick with release 2.2.0 of opendnp3
 		# TLS in not supported
 		git checkout tags/2.2.0
 	fi
+
 	#sed -e "s/buffer = {0x00}/buffer = {{0x00}}/" < cpp/lib/include/opendnp3/app/OctetData.h \
 	#	> cpp/lib/include/opendnp3/app/OctetData.h.$$ && \
 	#	mv cpp/lib/include/opendnp3/app/OctetData.h cpp/lib/include/opendnp3/app/OctetData.h.orig && \
@@ -95,7 +107,7 @@ if [ ! -d "${directory}/opendnp3" ]; then
 	cd build
 	echo Building opendnp3 static library ...
 	if [ ${useTLS} -eq 1 ]; then
-		cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON -DDNP3_TLS=ON ..
+		cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON -DDNP3_TLS=ON .. 
 	else
 		cmake -DSTATICLIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DDNP3_DEMO=ON ..
 	fi
